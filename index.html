@@ -519,78 +519,21 @@
 
     <script src="public/gamificacao-core.js"></script>
     <script src="public/config-personalizada.js"></script>
+    <script src="public/html-generator.js"></script>
     <script>
-    // Função para baixar HTML customizado (agora copia o JS do arquivo externo)
+    // Função para baixar HTML customizado (usando função compartilhada)
     document.getElementById('downloadHtmlBtn').addEventListener('click', async function() {
-        // Exporta HTML funcional com gamificação e config carregada
-        const style = Array.from(document.head.querySelectorAll('style')).map(s => s.outerHTML).join('\n');
-        const title = document.title;
-        // Pega o JSON carregado
-        let configJson = null;
-        if (window.currentConfig) {
-            configJson = JSON.stringify(window.currentConfig, null, 2);
-        }
-        // Pega apenas o HTML do gameContainer (forçando classe active para garantir exibição)
-        const gameContainerEl = document.getElementById('gameContainer').cloneNode(true);
-        gameContainerEl.classList.add('active');
-        // Remove a classe 'active' de todos os módulos e painéis para garantir interatividade no exportado
-        const modules = gameContainerEl.querySelectorAll('.module');
-        modules.forEach(m => m.classList.remove('active'));
-        // Mantém a classe 'active' apenas no painel que está visível no momento da exportação
-        const panels = gameContainerEl.querySelectorAll('.content-panel');
-        panels.forEach(p => p.classList.remove('active'));
-        // Remove o botão de download do HTML baixado
-        const downloadBtn = gameContainerEl.querySelector('#downloadHtmlBtn');
-        if (downloadBtn) downloadBtn.remove();
-        const gameContainer = gameContainerEl.outerHTML;
-        // Copia apenas o arquivo core da gamificação para o HTML exportado
-        let scriptCode = '';
-        try {
-            const resp = await fetch('public/gamificacao-core.js');
-            scriptCode = await resp.text();
-            // Garante que loadConfiguration e selectModule fiquem globais
-            scriptCode += '\nwindow.loadConfiguration = loadConfiguration;\nwindow.selectModule = selectModule;\n';
-            // Salva progresso no localStorage ao concluir módulo e ao carregar configuração
-            scriptCode += '\n(function(){' +
-              'var _originalLoad=window.loadConfiguration;' +
-              'window.loadConfiguration=function(config,source){_originalLoad(config,source);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};' +
-              'if(window.completeModule){var _originalComplete=window.completeModule;window.completeModule=function(moduleId){_originalComplete(moduleId);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};}' +
-            '})();\n';
-            // Ao abrir, restaura progresso salvo se existir
-            scriptCode += '\nwindow.addEventListener(\'DOMContentLoaded\',function(){try{var salvo=localStorage.getItem(\'gamificacao_progresso\');if(salvo){window.currentConfig=JSON.parse(salvo);}}catch(e){}if(window.currentConfig){loadConfiguration(window.currentConfig,\'personalizada\');}});\n';
-            // Adiciona o tooltip div no HTML exportado se não existir
-            scriptCode += '\n// Garante que o tooltip existe\nif (!document.getElementById("tooltip")) { const tooltip = document.createElement("div"); tooltip.id = "tooltip"; tooltip.className = "module-tooltip"; document.body.appendChild(tooltip); }\n';
-        } catch (e) {
-            alert('Erro ao copiar o JS para o HTML exportado: ' + e.message);
+        if (!window.currentConfig) {
+            alert('Nenhuma configuração carregada!');
             return;
         }
-        // Injeta o JSON carregado no início do script
-        let injectConfig = '';
-        if (configJson) {
-            injectConfig = `window.currentConfig = JSON.parse(String.raw\`${configJson.replace(/`/g, '\u0060')}\`);`;
+        
+        try {
+            const htmlContent = await window.generateGameHTML(window.currentConfig);
+            window.downloadHTML(htmlContent, 'gamificacao-config.html');
+        } catch (e) {
+            alert('Erro ao gerar HTML: ' + e.message);
         }
-        // Monta HTML exportado
-        let html = '';
-        html += '<!DOCTYPE html>\n';
-        html += '<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n<title>' + title + '</title>\n' + style + '\n</head>\n<body>\n';
-        html += '<div class="container">' + gameContainer + '</div>\n';
-        html += '<div class="module-tooltip" id="tooltip"></div>\n';
-        html += '<script>';
-        if (injectConfig) html += injectConfig + '\n';
-        if (scriptCode) html += scriptCode + '\n';
-        html += '<' + '/script>\n';
-        html += '</body>\n</html>';
-        // Cria blob e baixa
-        const blob = new Blob([html], {type: 'text/html'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'gamificacao-config.html';
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
-        }, 100);
     });
     </script>
 </body>
