@@ -550,10 +550,16 @@
             scriptCode = await resp.text();
             // Garante que loadConfiguration e selectModule fiquem globais
             scriptCode += '\nwindow.loadConfiguration = loadConfiguration;\nwindow.selectModule = selectModule;\n';
+            // Salva progresso no localStorage ao concluir módulo e ao carregar configuração
+            scriptCode += '\n(function(){' +
+              'var _originalLoad=window.loadConfiguration;' +
+              'window.loadConfiguration=function(config,source){_originalLoad(config,source);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};' +
+              'if(window.completeModule){var _originalComplete=window.completeModule;window.completeModule=function(moduleId){_originalComplete(moduleId);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};}' +
+            '})();\n';
+            // Ao abrir, restaura progresso salvo se existir
+            scriptCode += '\nwindow.addEventListener(\'DOMContentLoaded\',function(){try{var salvo=localStorage.getItem(\'gamificacao_progresso\');if(salvo){window.currentConfig=JSON.parse(salvo);}}catch(e){}if(window.currentConfig){loadConfiguration(window.currentConfig,\'personalizada\');}});\n';
             // Adiciona o tooltip div no HTML exportado se não existir
             scriptCode += '\n// Garante que o tooltip existe\nif (!document.getElementById("tooltip")) { const tooltip = document.createElement("div"); tooltip.id = "tooltip"; tooltip.className = "module-tooltip"; document.body.appendChild(tooltip); }\n';
-            // Força a chamada de loadConfiguration ao abrir o HTML
-            scriptCode += '\nwindow.addEventListener("DOMContentLoaded", function() {\n  if (window.currentConfig) {\n    loadConfiguration(window.currentConfig, "personalizada");\n  }\n});\n';
         } catch (e) {
             alert('Erro ao copiar o JS para o HTML exportado: ' + e.message);
             return;
