@@ -122,14 +122,21 @@ function createModuleElement(id, module) {
     
     element.classList.add(state);
     
-    // Emoji baseado no tipo e estado
-    let emoji = '📚';
-    if (module.type === 'checkpoint') {
-        emoji = '🎯';
-    } else if (state === 'completed') {
-        emoji = '✅';
-    } else if (state === 'locked') {
-        emoji = '🔒';
+    // Determina o emoji do módulo
+    let emoji = '📚'; // Emoji padrão (livro)
+    
+    // Se o módulo tem emoji personalizado, usa ele
+    if (module.emoji) {
+        emoji = module.emoji;
+    } else {
+        // Emojis baseados no tipo e estado quando não há personalização
+        if (module.type === 'checkpoint') {
+            emoji = '🎯';
+        } else if (state === 'completed') {
+            emoji = '✅';
+        } else if (state === 'locked') {
+            emoji = '🔒';
+        }
     }
     
     element.textContent = emoji;

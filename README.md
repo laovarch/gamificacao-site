@@ -98,9 +98,36 @@ gamificacao-site/
 
 ### 🎨 Editor Visual
 - **Drag & Drop**: Arraste módulos para posicioná-los
-- **Propriedades Dinâmicas**: Edite títulos, descrições e conteúdo
-- **Conexões Visuais**: Desenhe dependências entre módulos
-- **Preview em Tempo Real**: Veja mudanças instantaneamente
+- **Propriedades Dinâmicas**: Edite título, descrição e conteúdo em tempo real
+- **Conexões Automáticas**: Visualize dependências entre módulos
+- **Templates Prontos**: Configurações predefinidas para começar rapidamente
+
+### 😊 Sistema de Emojis Personalizados
+- **Emoji por Módulo**: Cada módulo pode ter seu próprio emoji
+- **Padrão Inteligente**: Emoji padrão 📚 (livro) para módulos de conteúdo
+- **Estados Dinâmicos**: Emojis mudam baseado no estado (🔒 bloqueado, ✅ concluído)
+- **Personalização Completa**: Configure emojis únicos no editor visual
+- **Exemplos Temáticos**: 
+  - 🏠 Centro/Início
+  - 🌱 Fundamentos
+  - 🧠 Teoria
+  - ⚡ Prática
+  - 🔨 Projetos
+  - 🏆 Certificação
+
+```json
+{
+  "modules": {
+    "modulo1": {
+      "title": "Introdução",
+      "emoji": "🌱",
+      "description": "Conceitos básicos",
+      "content": "...",
+      "type": "content"
+    }
+  }
+}
+```
 
 ### 💾 Sistema de Progresso
 - **localStorage Inteligente**: Progresso salvo por configuração

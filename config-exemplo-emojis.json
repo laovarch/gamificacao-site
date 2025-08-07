@@ -1,0 +1,115 @@
+{
+  "title": "🎓 Curso de Programação Web - Emojis Personalizados",
+  "subtitle": "Do básico ao avançado com emojis temáticos",
+  "modules": {
+    "inicio": {
+      "title": "Boas-vindas",
+      "description": "Introdução ao curso",
+      "content": "Bem-vindo ao curso de Programação Web! Este é o ponto de partida da sua jornada como desenvolvedor.",
+      "type": "checkpoint",
+      "emoji": "🏠",
+      "position": { "x": 50, "y": 15 },
+      "isAvailable": true,
+      "isCompleted": false
+    },
+    "html": {
+      "title": "HTML Básico",
+      "description": "Estrutura das páginas web",
+      "content": "Aprenda a criar a estrutura básica de páginas web usando HTML5.",
+      "type": "content",
+      "emoji": "📝",
+      "position": { "x": 20, "y": 35 },
+      "isAvailable": true,
+      "isCompleted": false,
+      "dependencies": ["inicio"]
+    },
+    "css": {
+      "title": "CSS Styling",
+      "description": "Estilização e design",
+      "content": "Deixe suas páginas bonitas com CSS3 e aprenda sobre layouts responsivos.",
+      "type": "content",
+      "emoji": "�",
+      "position": { "x": 50, "y": 35 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["html"]
+    },
+    "javascript": {
+      "title": "JavaScript",
+      "description": "Interatividade e lógica",
+      "content": "Adicione interatividade às suas páginas com JavaScript moderno.",
+      "type": "content",
+      "emoji": "⚡",
+      "position": { "x": 80, "y": 35 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["css"]
+    },
+    "frameworks": {
+      "title": "Frameworks",
+      "description": "React, Vue ou Angular",
+      "content": "Explore frameworks modernos para desenvolvimento de aplicações complexas.",
+      "type": "content",
+      "emoji": "🚀",
+      "position": { "x": 20, "y": 55 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["javascript"]
+    },
+    "backend": {
+      "title": "Backend",
+      "description": "Servidores e APIs",
+      "content": "Aprenda a criar APIs e trabalhar com bancos de dados.",
+      "type": "content",
+      "emoji": "⚙️",
+      "position": { "x": 50, "y": 55 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["javascript"]
+    },
+    "deploy": {
+      "title": "Deploy",
+      "description": "Publicação na web",
+      "content": "Coloque seu projeto no ar e aprenda sobre hosting e domínios.",
+      "type": "content",
+      "emoji": "🌐",
+      "position": { "x": 80, "y": 55 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["backend", "frameworks"]
+    },
+    "projeto": {
+      "title": "Projeto Final",
+      "description": "Desenvolva seu portfólio",
+      "content": "Crie um projeto completo aplicando todos os conhecimentos adquiridos.",
+      "type": "content",
+      "emoji": "🔨",
+      "position": { "x": 35, "y": 75 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["deploy"]
+    },
+    "certificacao": {
+      "title": "Certificação",
+      "description": "Receba seu certificado",
+      "content": "Parabéns! Você é agora um desenvolvedor web certificado!",
+      "type": "checkpoint",
+      "emoji": "🏆",
+      "position": { "x": 65, "y": 75 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["projeto"]
+    }
+  },
+  "connections": [
+    { "from": "inicio", "to": "html" },
+    { "from": "html", "to": "css" },
+    { "from": "css", "to": "javascript" },
+    { "from": "javascript", "to": "frameworks" },
+    { "from": "javascript", "to": "backend" },
+    { "from": "frameworks", "to": "deploy" },
+    { "from": "backend", "to": "deploy" },
+    { "from": "deploy", "to": "projeto" },
+    { "from": "projeto", "to": "certificacao" }
+  ]
+}
