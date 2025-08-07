@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #005594 0%, #f78b1f 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -47,7 +47,7 @@
             position: absolute;
             top: 0;
             right: 0;
-            background: linear-gradient(45deg, #28a745, #20c997);
+            background: linear-gradient(45deg, #f78b1f, #f6bf86);
             color: white;
             padding: 12px 20px;
             border: none;
@@ -57,7 +57,7 @@
             text-decoration: none;
             font-size: 0.9rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            box-shadow: 0 4px 15px rgba(247, 139, 31, 0.3);
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -65,8 +65,8 @@
 
         .header-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-            background: linear-gradient(45deg, #34ce57, #28dcc6);
+            box-shadow: 0 6px 20px rgba(247, 139, 31, 0.4);
+            background: linear-gradient(45deg, #f6bf86, #f78b1f);
         }
 
         .header h1 {
@@ -104,7 +104,7 @@
         }
 
         .collapsible-header:hover {
-            color: #667eea;
+            color: #f78b1f;
         }
 
         .toggle-icon {
@@ -135,18 +135,18 @@
         }
 
         .upload-area {
-            border: 3px dashed #667eea;
+            border: 3px dashed #005594;
             border-radius: 10px;
             padding: 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #f8f9ff;
+            background: #f5f8ff;
         }
 
         .upload-area:hover {
-            border-color: #5a6fd8;
-            background: #f0f2ff;
+            border-color: #004080;
+            background: #eef4ff;
         }
 
         .upload-area.dragover {
@@ -160,7 +160,7 @@
         }
 
         .upload-text strong {
-            color: #667eea;
+            color: #005594;
             font-size: 1.1rem;
         }
 
@@ -182,7 +182,7 @@
 
         .config-btn {
             padding: 15px 20px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #005594, #f78b1f);
             color: white;
             border: none;
             border-radius: 10px;
@@ -193,12 +193,12 @@
         }
 
         .config-btn:hover {
-            background: linear-gradient(45deg, #5a6fd8, #6a4190);
+            background: linear-gradient(45deg, #004080, #e6741a);
             transform: translateY(-2px);
         }
 
         .config-btn.active {
-            background: linear-gradient(45deg, #28a745, #20c997);
+            background: linear-gradient(45deg, #f78b1f, #f6bf86);
         }
 
         .game-container {
@@ -226,7 +226,7 @@
         }
 
         .game-header {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #005594, #f78b1f);
             color: white;
             padding: 30px;
             text-align: center;
@@ -451,7 +451,10 @@
         <div class="header">
             <div class="header-content">
                 <div class="header-title">
-                    <h1>🎮 Sistema de Gamificação</h1>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <img src="Senac_logo.svg" alt="Senac" style="height: 45px; width: auto;">
+                        <h1 style="margin: 0;">Sistema de Gamificação</h1>
+                    </div>
                     <p>Demonstração interativa do sistema de aprendizado progressivo</p>
                 </div>
                 <a href="config-editor.html" class="header-button" target="_blank">
@@ -462,20 +465,20 @@
         </div>
 
 
-<section class="config-selector" style="padding: 18px 0 0 0; background: #f8f9ff; box-shadow: 0 4px 18px rgba(102,126,234,0.08); border-radius: 14px; margin-bottom: 32px;">
+<section class="config-selector" style="padding: 18px 0 0 0; background: #f5f8ff; box-shadow: 0 4px 18px rgba(0,85,148,0.08); border-radius: 14px; margin-bottom: 32px;">
     <div class="upload-section" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
-        <div class="collapsible-header" onclick="toggleCustomConfigSection()" style="cursor:pointer; display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 600; color: #4b3c7a; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0; padding: 14px 22px 14px 18px; letter-spacing: 0.01em; box-shadow: 0 2px 8px rgba(102,126,234,0.07);">
+        <div class="collapsible-header" onclick="toggleCustomConfigSection()" style="cursor:pointer; display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 600; color: #ffffff; background: linear-gradient(90deg, #005594 0%, #f78b1f 100%); border-radius: 10px 10px 0 0; padding: 14px 22px 14px 18px; letter-spacing: 0.01em; box-shadow: 0 2px 8px rgba(0,85,148,0.07);">
             <span style="font-size: 1.3em; color: #fff;">📁</span>
             <span style="color: #fff;">Carregar Configuração Personalizada</span>
             <span class="toggle-icon" id="customConfigToggle" style="margin-left:auto; color:#fff; font-size:1.1em;">▲</span>
         </div>
         <div class="collapsible-content visible" id="customConfigContent" style="display: block; margin-bottom: 0; background: #fff; border-radius: 0 0 10px 10px; border-top: 1px solid #e3e6f3;">
-            <div class="upload-area" id="uploadArea" style="background: #f8f9ff; border: 2.5px dashed #667eea;">
+            <div class="upload-area" id="uploadArea" style="background: #f5f8ff; border: 2.5px dashed #005594;">
                 <input type="file" id="fileInput" accept=".json" style="display: none;">
                 <div class="upload-content">
-                    <div class="upload-icon" style="color: #667eea;">📁</div>
+                    <div class="upload-icon" style="color: #005594;">📁</div>
                     <div class="upload-text">
-                        <strong style="color: #4b3c7a;">Clique aqui ou arraste um arquivo JSON</strong>
+                        <strong style="color: #005594;">Clique aqui ou arraste um arquivo JSON</strong>
                         <br>
                         <small style="color: #555;">Arquivo de configuração do sistema de gamificação</small>
                     </div>
