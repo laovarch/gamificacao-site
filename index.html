@@ -457,7 +457,7 @@
                 <a href="config-editor.html" class="header-button" target="_blank">
                     🛠️ Editor
                 </a>
-            <button class="header-button" id="downloadHtmlBtn" type="button">⬇️ Baixar HTML</button>
+            <!-- Botão de download movido para dentro do gameContainer -->
             </div>
         </div>
 
@@ -504,9 +504,12 @@
         </div>
 
         <div class="game-container" id="gameContainer">
-            <div class="game-header">
-                <h2 class="game-title" id="gameTitle">Sistema de Gamificação</h2>
-                <div class="game-subtitle" id="gameSubtitle">Carregando...</div>
+            <div class="game-header" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                <div>
+                    <h2 class="game-title" id="gameTitle" style="margin-bottom: 0;">Sistema de Gamificação</h2>
+                    <div class="game-subtitle" id="gameSubtitle">Carregando...</div>
+                </div>
+                <button class="header-button" id="downloadHtmlBtn" type="button" style="position:static; margin-left: 16px;">⬇️ Baixar HTML</button>
             </div>
 
             <div class="status-bar" id="statusBar">
@@ -540,9 +543,14 @@
         if (window.currentConfig) {
             configJson = JSON.stringify(window.currentConfig, null, 2);
         }
-        // Pega apenas o HTML do gameContainer (sem upload, sem seleção de template)
-        const gameContainer = document.getElementById('gameContainer').outerHTML;
-        // Copia o JS do arquivo externo, removendo funções de upload e seleção de template
+        // Pega apenas o HTML do gameContainer (forçando classe active para garantir exibição)
+        const gameContainerEl = document.getElementById('gameContainer').cloneNode(true);
+        gameContainerEl.classList.add('active');
+        // Remove o botão de download do HTML baixado
+        const downloadBtn = gameContainerEl.querySelector('#downloadHtmlBtn');
+        if (downloadBtn) downloadBtn.remove();
+        const gameContainer = gameContainerEl.outerHTML;
+        // Copia o JS do arquivo externo, removendo funções de upload e seleção de template e forçando inicialização
         let scriptCode = '';
         try {
             const resp = await fetch('public/gamificacao.js');
@@ -552,6 +560,8 @@
             fullJs = fullJs.replace(/function handleFileUpload[\s\S]*?\}\n/g, '');
             fullJs = fullJs.replace(/function toggleCustomConfigSection[\s\S]*?\}\n/g, '');
             fullJs = fullJs.replace(/function loadPredefinedConfig[\s\S]*?\}\n/g, '');
+            // Força a chamada de loadConfiguration ao abrir o HTML
+            fullJs += '\nwindow.addEventListener("DOMContentLoaded", function() { if (window.currentConfig) { loadConfiguration(window.currentConfig, "personalizada"); } });\n';
             scriptCode = fullJs;
         } catch (e) {
             alert('Erro ao copiar o JS para o HTML exportado: ' + e.message);
