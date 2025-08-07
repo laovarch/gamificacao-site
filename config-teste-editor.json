@@ -1,0 +1,55 @@
+{
+  "title": "🎨 Teste Editor Visual - Emojis Personalizados",
+  "subtitle": "Demonstração da sincronização visual",
+  "modules": {
+    "centro": {
+      "title": "Centro de Comando",
+      "description": "Ponto central do aprendizado",
+      "content": "Bem-vindo ao centro de comando! Daqui você coordena todo seu aprendizado.",
+      "type": "checkpoint",
+      "emoji": "🏠",
+      "position": { "x": 50, "y": 30 },
+      "isAvailable": true,
+      "isCompleted": false
+    },
+    "design": {
+      "title": "Design Visual",
+      "description": "Princípios de design",
+      "content": "Aprenda os fundamentos do design visual e teoria das cores.",
+      "type": "content",
+      "emoji": "🎨",
+      "position": { "x": 25, "y": 60 },
+      "isAvailable": true,
+      "isCompleted": false,
+      "dependencies": ["centro"]
+    },
+    "codigo": {
+      "title": "Programação",
+      "description": "Desenvolvimento de software",
+      "content": "Mergulhe no mundo da programação e desenvolvimento de aplicações.",
+      "type": "content",
+      "emoji": "💻",
+      "position": { "x": 75, "y": 60 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["centro"]
+    },
+    "projeto": {
+      "title": "Projeto Integrado",
+      "description": "Combine design e código",
+      "content": "Crie um projeto que combine design visual com programação avançada.",
+      "type": "content",
+      "emoji": "🚀",
+      "position": { "x": 50, "y": 85 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["design", "codigo"]
+    }
+  },
+  "connections": [
+    { "from": "centro", "to": "design" },
+    { "from": "centro", "to": "codigo" },
+    { "from": "design", "to": "projeto" },
+    { "from": "codigo", "to": "projeto" }
+  ]
+}

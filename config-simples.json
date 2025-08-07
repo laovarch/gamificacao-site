@@ -2,39 +2,43 @@
   "title": "🚀 Configuração Simples",
   "modules": {
     "centro": {
-      "title": "🎯 Centro de Aprendizado",
+      "title": "Centro de Aprendizado",
       "description": "Seu ponto de partida",
       "content": "Bem-vindo ao sistema de aprendizado! A partir deste centro você pode acessar os módulos do curso.",
       "type": "checkpoint",
+      "emoji": "🏠",
       "position": { "x": 50, "y": 50 },
       "isAvailable": true,
       "isCompleted": false
     },
     "introducao": {
-      "title": "📖 Introdução",
+      "title": "Introdução",
       "description": "Conceitos básicos e fundamentais",
       "content": "Aprenda os fundamentos essenciais que servirão de base para todo o curso. Este módulo é obrigatório para avançar.",
       "type": "content",
+      "emoji": "🌱",
       "position": { "x": 25, "y": 25 },
       "isAvailable": true,
       "isCompleted": false,
       "dependencies": ["centro"]
     },
     "pratica": {
-      "title": "⚡ Prática",
+      "title": "Prática",
       "description": "Exercícios práticos e aplicação",
       "content": "Coloque em prática o que aprendeu na introdução. Exercícios hands-on para solidificar o conhecimento.",
       "type": "content",
+      "emoji": "⚡",
       "position": { "x": 75, "y": 25 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["introducao"]
     },
     "avancado": {
-      "title": "🚀 Avançado",
+      "title": "Avançado",
       "description": "Conceitos avançados e especializados",
       "content": "Tópicos mais complexos e especializados. Para estudantes que dominaram os conceitos básicos e práticos.",
       "type": "content",
+      "emoji": "🚀",
       "position": { "x": 50, "y": 75 },
       "isAvailable": false,
       "isCompleted": false,

@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0066cc 0%, #ff6600 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -53,7 +53,7 @@
 
         .panel h3 {
             margin-bottom: 20px;
-            color: #667eea;
+            color: #0066cc;
             border-bottom: 2px solid #f0f2ff;
             padding-bottom: 10px;
         }
@@ -101,7 +101,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #0066cc, #ff6600);
             color: white;
         }
 
@@ -111,17 +111,17 @@
         }
 
         .btn-danger {
-            background: linear-gradient(45deg, #dc3545, #c82333);
+            background: linear-gradient(45deg, #e55a00, #cc5200);
             color: white;
         }
 
         .btn-secondary {
-            background: linear-gradient(45deg, #6c757d, #495057);
+            background: linear-gradient(45deg, #0052a3, #003d7a);
             color: white;
         }
 
         .btn-danger {
-            background: linear-gradient(45deg, #dc3545, #c82333);
+            background: linear-gradient(45deg, #e55a00, #cc5200);
             color: white;
         }
 
@@ -142,12 +142,12 @@
 
         .module-item:hover {
             background: #e9ecef;
-            border-color: #667eea;
+            border-color: #0066cc;
         }
 
         .module-item.selected {
             background: #e7f1ff;
-            border-color: #667eea;
+            border-color: #0066cc;
             border-width: 2px;
         }
 
@@ -174,7 +174,7 @@
         }
 
         .module-preview.checkpoint {
-            background: linear-gradient(45deg, #17a2b8, #138496);
+            background: linear-gradient(45deg, #ffaa33, #ffcc66);
             width: 80px;
             height: 80px;
         }
@@ -186,10 +186,35 @@
         .connection-line {
             position: absolute;
             height: 3px;
-            background: #667eea;
+            background: #0066cc;
             border-radius: 2px;
             opacity: 0.8;
             z-index: 1;
+        }
+
+        .emoji-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .emoji-option {
+            font-size: 1.5em;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+            display: inline-block;
+            text-align: center;
+            min-width: 35px;
+            min-height: 35px;
+            line-height: 1.2;
+        }
+
+        .emoji-option:hover {
+            background: #0066cc;
+            transform: scale(1.1);
         }
 
         .json-output {
@@ -223,7 +248,7 @@
 
         .template-btn:hover {
             background: #e9ecef;
-            border-color: #667eea;
+            border-color: #0066cc;
         }
 
         .position-controls {
@@ -286,7 +311,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🛠️ Editor de Configurações</h1>
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); align-self: flex-start;">
+                <img src="Senac_logo.svg" alt="Senac" style="height: 50px; width: auto;">
+                <h1 style="margin: 0; color: #0066cc;">Editor de Configurações</h1>
+            </div>
             <p>Crie e edite configurações para o sistema de gamificação</p>
         </div>
 
@@ -366,6 +394,109 @@
                     </div>
                     
                     <div class="form-group">
+                        <label for="moduleEmoji">Emoji (opcional):</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="text" id="moduleEmoji" placeholder="📚" maxlength="2" onchange="updateSelectedModule()" style="width: 60px; text-align: center; font-size: 1.2em;">
+                            <button type="button" onclick="toggleEmojiPicker()" style="padding: 5px 10px; background: #0066cc; color: white; border: none; border-radius: 5px; cursor: pointer;">😊 Escolher</button>
+                        </div>
+                        <small style="color: #666; margin-left: 0px; display: block; margin-top: 5px;">Padrão: 📚 (livro)</small>
+                        
+                        <!-- Seletor de Emojis -->
+                        <div id="emojiPicker" style="display: none; margin-top: 10px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; max-width: 450px; max-height: 400px; overflow-y: auto;">
+                            <div style="margin-bottom: 10px; font-weight: bold; color: #333;">Escolha um emoji:</div>
+                            
+                            <div style="margin-bottom: 8px;">
+                                <strong>📚 Educação & Aprendizado:</strong>
+                                <div class="emoji-group">
+                                    <span class="emoji-option" onclick="selectEmoji('📚')">📚</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📖')">📖</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📝')">📝</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎓')">🎓</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎯')">🎯</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🧠')">🧠</span>
+                                    <span class="emoji-option" onclick="selectEmoji('💡')">💡</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🔍')">🔍</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 8px;">
+                                <strong>🚀 Progresso & Níveis:</strong>
+                                <div class="emoji-group">
+                                    <span class="emoji-option" onclick="selectEmoji('🏠')">🏠</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🌱')">🌱</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⚡')">⚡</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🚀')">🚀</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🏆')">🏆</span>
+                                    <span class="emoji-option" onclick="selectEmoji('✨')">✨</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⭐')">⭐</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎖️')">🎖️</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 8px;">
+                                <strong>🔨 Prática & Projetos:</strong>
+                                <div class="emoji-group">
+                                    <span class="emoji-option" onclick="selectEmoji('🔨')">🔨</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⚙️')">⚙️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('�')">�</span>
+                                    <span class="emoji-option" onclick="selectEmoji('�')">�</span>
+                                    <span class="emoji-option" onclick="selectEmoji('💪')">💪</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎨')">🎨</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🏗️')">🏗️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🧪')">🧪</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 8px;">
+                                <strong>💻 Tecnologia & Web:</strong>
+                                <div class="emoji-group">
+                                    <span class="emoji-option" onclick="selectEmoji('💻')">💻</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📱')">📱</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🖥️')">🖥️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('⌨️')">⌨️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🖱️')">🖱️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('💾')">💾</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🌐')">🌐</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📡')">📡</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 8px;">
+                                <strong>🎭 Criatividade & Arte:</strong>
+                                <div class="emoji-group">
+                                    <span class="emoji-option" onclick="selectEmoji('🎭')">🎭</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎪')">🎪</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎮')">🎮</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎵')">🎵</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎬')">🎬</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎤')">🎤</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🖌️')">🖌️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🖼️')">🖼️</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 8px;">
+                                <strong>🌟 Diversos & Objetos:</strong>
+                                <div class="emoji-group">
+                                    <span class="emoji-option" onclick="selectEmoji('📊')">📊</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📈')">📈</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🗂️')">🗂️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('📋')">📋</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🔑')">🔑</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🗝️')">🗝️</span>
+                                    <span class="emoji-option" onclick="selectEmoji('🎁')">🎁</span>
+                                    <span class="emoji-option" onclick="selectEmoji('💎')">💎</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px; text-align: right; border-top: 1px solid #ddd; padding-top: 10px;">
+                                <button type="button" onclick="clearEmoji()" style="padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 5px;">🗑️ Limpar</button>
+                                <button type="button" onclick="toggleEmojiPicker()" style="padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">✅ Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
                         <label for="moduleDescription">Descrição:</label>
                         <input type="text" id="moduleDescription" onchange="updateSelectedModule()">
                     </div>
@@ -408,7 +539,7 @@
                     📥 Baixar JSON
                 </button>
                 
-                <button class="btn btn-primary" onclick="downloadHTML()">
+                <button class="btn btn-primary" onclick="downloadHTMLFromEditor()">
                     🌐 Baixar HTML Completo
                 </button>
                 
@@ -423,6 +554,7 @@
         </div>
     </div>
 
+    <script src="public/html-generator.js"></script>
     <script>
         let currentConfig = {
             title: "Nova Configuração",
@@ -445,29 +577,32 @@
                 title: "Configuração Simples",
                 modules: {
                     "centro": {
-                        title: "🎯 Centro",
+                        title: "Centro",
                         description: "Ponto central",
                         content: "Este é o centro do aprendizado.",
                         type: "checkpoint",
+                        emoji: "🎯",
                         position: { x: 50, y: 50 },
                         isAvailable: true,
                         isCompleted: false
                     },
                     "modulo1": {
-                        title: "📚 Módulo 1",
+                        title: "Módulo 1",
                         description: "Primeiro módulo",
                         content: "Conteúdo do primeiro módulo.",
                         type: "content",
+                        emoji: "📚",
                         position: { x: 30, y: 30 },
                         isAvailable: true,
                         isCompleted: false,
                         dependencies: ["centro"]
                     },
                     "modulo2": {
-                        title: "📖 Módulo 2",
+                        title: "Módulo 2",
                         description: "Segundo módulo",
                         content: "Conteúdo do segundo módulo.",
                         type: "content",
+                        emoji: "📖",
                         position: { x: 70, y: 70 },
                         isAvailable: false,
                         isCompleted: false,
@@ -772,7 +907,7 @@
             line.setAttribute('y1', `${fromPos.y}%`);
             line.setAttribute('x2', `${toPos.x}%`);
             line.setAttribute('y2', `${toPos.y}%`);
-            line.setAttribute('stroke', '#667eea');
+            line.setAttribute('stroke', '#0066cc');
             line.setAttribute('stroke-width', '3');
             line.setAttribute('stroke-linecap', 'round');
             line.setAttribute('opacity', '0.8');
@@ -796,8 +931,20 @@
             element.style.position = 'absolute';
             element.style.zIndex = '10';
             
-            // Emoji baseado no tipo
-            const emoji = module.type === 'checkpoint' ? '🎯' : '📚';
+            // Determina o emoji do módulo (igual ao sistema principal)
+            let emoji = '📚'; // Emoji padrão (livro)
+            
+            // Se o módulo tem emoji personalizado, usa ele
+            if (module.emoji) {
+                emoji = module.emoji;
+            } else {
+                // Emojis baseados no tipo quando não há personalização
+                if (module.type === 'checkpoint') {
+                    emoji = '🎯';
+                }
+                // Mantém 📚 para módulos de conteúdo sem emoji personalizado
+            }
+            
             element.textContent = emoji;
             element.title = `${module.title} - ${module.description}`;
             
@@ -828,7 +975,7 @@
             
             const selected = document.getElementById(`preview-${moduleId}`);
             if (selected) {
-                selected.style.border = '2px solid #ffc107';
+                selected.style.border = '2px solid #ff6600';
             }
             
             updatePropertiesPanel();
@@ -842,6 +989,7 @@
                 const module = currentConfig.modules[selectedModule];
                 
                 document.getElementById('moduleTitle').value = module.title;
+                document.getElementById('moduleEmoji').value = module.emoji || '';
                 document.getElementById('moduleDescription').value = module.description;
                 document.getElementById('moduleContent').value = module.content;
                 document.getElementById('moduleX').value = module.position.x;
@@ -856,6 +1004,21 @@
                 propsPanel.style.display = 'none';
                 noSelection.style.display = 'block';
             }
+        }
+
+        function getModuleEmoji(module) {
+            // Usa emoji personalizado se disponível
+            if (module.emoji) {
+                return module.emoji;
+            }
+            
+            // Senão, usa emoji baseado no tipo
+            if (module.type === 'checkpoint') {
+                return '🎯';
+            }
+            
+            // Padrão: livro
+            return '📚';
         }
 
         function updateDependenciesList() {
@@ -875,6 +1038,7 @@
                 dependencyItem.className = 'dependency-item';
                 
                 const isChecked = currentDependencies.includes(id);
+                const moduleEmoji = getModuleEmoji(module);
                 
                 dependencyItem.innerHTML = `
                     <input type="checkbox" 
@@ -882,7 +1046,7 @@
                            ${isChecked ? 'checked' : ''} 
                            onchange="updateModuleDependencies()">
                     <label for="dep-${id}">
-                        <span class="dependency-emoji">${module.type === 'checkpoint' ? '🎯' : '📚'}</span>
+                        <span class="dependency-emoji">${moduleEmoji}</span>
                         <span>${module.title}</span>
                         <small style="color: #666; margin-left: 5px;">(${id})</small>
                     </label>
@@ -941,6 +1105,17 @@
             module.position.x = parseInt(document.getElementById('moduleX').value);
             module.position.y = parseInt(document.getElementById('moduleY').value);
             
+            // Atualiza emoji se fornecido, caso contrário remove o campo
+            const emoji = document.getElementById('moduleEmoji').value.trim();
+            if (emoji) {
+                module.emoji = emoji;
+            } else {
+                delete module.emoji; // Remove o campo se estiver vazio
+            }
+            
+            // Atualiza o emoji no editor visual imediatamente
+            updateModuleEmojiInEditor(selectedModule, emoji || null);
+            
             // Atualiza título da configuração
             const title = document.getElementById('configTitle').value;
             if (title) {
@@ -953,6 +1128,54 @@
             
             // Recarrega a lista de dependências para refletir mudanças de título
             updateDependenciesList();
+        }
+
+        // Funções para o seletor de emojis
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            if (picker.style.display === 'none' || picker.style.display === '') {
+                picker.style.display = 'block';
+            } else {
+                picker.style.display = 'none';
+            }
+        }
+
+        function selectEmoji(emoji) {
+            document.getElementById('moduleEmoji').value = emoji;
+            updateSelectedModule();
+            updateModuleEmojiInEditor(selectedModule, emoji);
+            updateDependenciesList(); // Atualiza emojis na lista de dependências
+            toggleEmojiPicker();
+        }
+
+        function clearEmoji() {
+            document.getElementById('moduleEmoji').value = '';
+            updateSelectedModule();
+            updateModuleEmojiInEditor(selectedModule, null);
+            updateDependenciesList(); // Atualiza emojis na lista de dependências
+            toggleEmojiPicker();
+        }
+
+        function updateModuleEmojiInEditor(moduleId, emoji) {
+            if (!moduleId) return;
+            
+            const moduleElement = document.getElementById(`preview-${moduleId}`);
+            if (moduleElement) {
+                const module = currentConfig.modules[moduleId];
+                
+                // Determina o emoji a ser exibido (igual à lógica do createModuleElement)
+                let displayEmoji = '📚'; // Padrão
+                
+                if (emoji) {
+                    displayEmoji = emoji;
+                } else if (module && module.emoji) {
+                    displayEmoji = module.emoji;
+                } else if (module && module.type === 'checkpoint') {
+                    displayEmoji = '🎯';
+                }
+                
+                moduleElement.textContent = displayEmoji;
+            }
         }
 
         function updateConnections() {
@@ -1035,27 +1258,32 @@
             URL.revokeObjectURL(url);
         }
 
-        function downloadHTML() {
+        function downloadHTMLFromEditor() {
+            console.log('downloadHTMLFromEditor called'); // Debug
+            
+            // Verifica se as funções necessárias estão disponíveis
+            if (typeof window.generateGameHTML !== 'function') {
+                alert('Erro: Função generateGameHTML não encontrada. Verifique se o html-generator.js foi carregado.');
+                return;
+            }
+            
+            if (typeof window.downloadHTML !== 'function') {
+                alert('Erro: Função downloadHTML não encontrada. Verifique se o html-generator.js foi carregado.');
+                return;
+            }
+            
             const title = currentConfig.title || 'Sistema de Gamificação';
             const filename = `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.html`;
             
-            const htmlContent = generateHTMLTemplate(currentConfig);
+            console.log('Generating HTML for config:', currentConfig); // Debug
             
-            const blob = new Blob([htmlContent], {
-                type: 'text/html;charset=utf-8'
+            window.generateGameHTML(currentConfig).then(htmlContent => {
+                console.log('HTML generated successfully'); // Debug
+                window.downloadHTML(htmlContent, filename);
+            }).catch(e => {
+                console.error('Erro ao gerar HTML:', e); // Debug
+                alert('Erro ao gerar HTML: ' + e.message);
             });
-            
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function generateHTMLTemplate(config) {
-            // Função simplificada para gerar HTML template
-            return "<!DOCTYPE html><html><head><title>" + config.title + "</title></head><body><h1>Sistema funcionando</h1></body></html>";
         }
 
         function copyToClipboard() {
