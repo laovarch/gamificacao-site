@@ -538,7 +538,9 @@ function toggleCustomConfigSection() {
 
     <div class="module-tooltip" id="tooltip"></div>
 
-    <script src="public/gamificacao.js"></script>
+    <script src="public/gamificacao-core.js"></script>
+    <script src="public/upload-manager.js"></script>
+    <script src="public/predefined-configs.js"></script>
     <script>
     // Função para baixar HTML customizado (agora copia o JS do arquivo externo)
     document.getElementById('downloadHtmlBtn').addEventListener('click', async function() {
@@ -562,26 +564,17 @@ function toggleCustomConfigSection() {
         const downloadBtn = gameContainerEl.querySelector('#downloadHtmlBtn');
         if (downloadBtn) downloadBtn.remove();
         const gameContainer = gameContainerEl.outerHTML;
-        // Copia o JS do arquivo externo, mantendo apenas as funções essenciais para interação
+        // Copia apenas o arquivo core da gamificação para o HTML exportado
         let scriptCode = '';
         try {
-            const resp = await fetch('public/gamificacao.js');
-            let fullJs = await resp.text();
-            
-            // Remove apenas o bloco específico de inicialização de upload (DOMContentLoaded)
-            fullJs = fullJs.replace(/\/\/ Inicialização do sistema de upload\s*document\.addEventListener\('DOMContentLoaded', function\(\) \{[\s\S]*?\}\);/g, '');
-            
-            // Remove apenas as funções específicas de upload
-            fullJs = fullJs.replace(/function handleFileUpload\(file\) \{[\s\S]*?\n\}/g, '');
-            fullJs = fullJs.replace(/function toggleCustomConfigSection\(\) \{[\s\S]*?\n\}/g, '');
-            fullJs = fullJs.replace(/function loadPredefinedConfig\([^)]*\) \{[\s\S]*?\n\}/g, '');
+            const resp = await fetch('public/gamificacao-core.js');
+            scriptCode = await resp.text();
             
             // Adiciona o tooltip div no HTML exportado se não existir
-            fullJs += '\n// Garante que o tooltip existe\nif (!document.getElementById("tooltip")) { const tooltip = document.createElement("div"); tooltip.id = "tooltip"; tooltip.className = "module-tooltip"; document.body.appendChild(tooltip); }\n';
+            scriptCode += '\n// Garante que o tooltip existe\nif (!document.getElementById("tooltip")) { const tooltip = document.createElement("div"); tooltip.id = "tooltip"; tooltip.className = "module-tooltip"; document.body.appendChild(tooltip); }\n';
             
             // Força a chamada de loadConfiguration ao abrir o HTML
-            fullJs += '\nwindow.addEventListener("DOMContentLoaded", function() { if (window.currentConfig) { loadConfiguration(window.currentConfig, "personalizada"); } });\n';
-            scriptCode = fullJs;
+            scriptCode += '\nwindow.addEventListener("DOMContentLoaded", function() { if (window.currentConfig) { loadConfiguration(window.currentConfig, "personalizada"); } });\n';
         } catch (e) {
             alert('Erro ao copiar o JS para o HTML exportado: ' + e.message);
             return;
