@@ -314,6 +314,10 @@
                         <strong>📚 Template Curso</strong><br>
                         <small>Estrutura de curso completo</small>
                     </button>
+                    <button class="template-btn" onclick="loadTemplate('checkpointTest')">
+                        <strong>🎯 Teste Checkpoint</strong><br>
+                        <small>Demonstra desbloqueio automático</small>
+                    </button>
                 </div>
 
                 <h4>➕ Adicionar Módulo</h4>
@@ -535,6 +539,56 @@
                     { from: "teoria", to: "pratica" },
                     { from: "pratica", to: "avancado" }
                 ]
+            },
+            
+            checkpointTest: {
+                title: "🎯 Teste de Checkpoint - Desbloqueio Automático",
+                modules: {
+                    "centro": {
+                        title: "🎯 Centro Principal",
+                        description: "Checkpoint inicial - sempre disponível",
+                        content: "Este é o centro principal do curso. A partir daqui você pode acessar os módulos básicos.",
+                        type: "checkpoint",
+                        position: { x: 50, y: 30 },
+                        isAvailable: true,
+                        isCompleted: false
+                    },
+                    "modulo1": {
+                        title: "📚 Módulo 1",
+                        description: "Conectado ao centro - deve estar desbloqueado",
+                        content: "Este módulo está conectado diretamente ao checkpoint e deve estar automaticamente disponível.",
+                        type: "content",
+                        position: { x: 25, y: 60 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "modulo2": {
+                        title: "📚 Módulo 2",
+                        description: "Também conectado ao centro - deve estar desbloqueado",
+                        content: "Este módulo também está conectado diretamente ao checkpoint e deve estar disponível.",
+                        type: "content",
+                        position: { x: 75, y: 60 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "modulo3": {
+                        title: "📚 Módulo 3",
+                        description: "Depende do Módulo 1 - deve ficar bloqueado",
+                        content: "Este módulo depende do Módulo 1, então deve permanecer bloqueado até que o Módulo 1 seja completado.",
+                        type: "content",
+                        position: { x: 25, y: 85 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["modulo1"]
+                    }
+                },
+                connections: [
+                    { from: "centro", to: "modulo1" },
+                    { from: "centro", to: "modulo2" },
+                    { from: "modulo1", to: "modulo3" }
+                ]
             }
         };
 
@@ -550,6 +604,9 @@
             currentConfig = JSON.parse(JSON.stringify(templates[templateName]));
             console.log('Template carregado:', currentConfig);
             
+            // Aplica regra de checkpoint
+            applyCheckpointUnlockRule();
+            
             const configTitleInput = document.getElementById('configTitle');
             if (configTitleInput) {
                 configTitleInput.value = currentConfig.title;
@@ -557,6 +614,7 @@
                 console.error('Elemento configTitle não encontrado');
             }
             
+            updateConnections();
             updateVisualEditor();
             updateJsonOutput();
             selectedModule = null;
@@ -600,6 +658,9 @@
             console.log('Módulo criado:', newModule);
             console.log('Config atual:', currentConfig);
             
+            // Aplica regra de checkpoint
+            applyCheckpointUnlockRule();
+            
             updateConnections();
             updateVisualEditor();
             updateJsonOutput();
@@ -628,6 +689,29 @@
                 
                 alert('Todos os módulos foram removidos!');
             }
+        }
+
+        function applyCheckpointUnlockRule() {
+            // Encontra todos os módulos do tipo checkpoint
+            const checkpoints = Object.entries(currentConfig.modules)
+                .filter(([id, module]) => module.type === 'checkpoint')
+                .map(([id]) => id);
+            
+            // Para cada módulo, verifica se depende diretamente de um checkpoint
+            Object.entries(currentConfig.modules).forEach(([id, module]) => {
+                if (module.dependencies && Array.isArray(module.dependencies)) {
+                    // Verifica se alguma dependência é um checkpoint
+                    const dependsOnCheckpoint = module.dependencies.some(depId => 
+                        checkpoints.includes(depId)
+                    );
+                    
+                    if (dependsOnCheckpoint) {
+                        // Desbloqueia o módulo
+                        currentConfig.modules[id].isAvailable = true;
+                        console.log(`Módulo "${module.title}" desbloqueado automaticamente (conectado a checkpoint)`);
+                    }
+                }
+            });
         }
 
         function updateVisualEditor() {
@@ -836,6 +920,9 @@
             }
             
             console.log(`Dependências atualizadas para ${selectedModule}:`, dependencies);
+            
+            // Aplica regra de checkpoint
+            applyCheckpointUnlockRule();
             
             // Atualiza conexões e interface
             updateConnections();

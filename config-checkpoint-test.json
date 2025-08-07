@@ -1,0 +1,72 @@
+{
+  "title": "🎯 Teste de Checkpoint - Desbloqueio Automático",
+  "modules": {
+    "centro": {
+      "title": "🎯 Centro Principal",
+      "description": "Checkpoint inicial - sempre disponível",
+      "content": "Este é o centro principal do curso. A partir daqui você pode acessar os módulos básicos.",
+      "type": "checkpoint",
+      "position": { "x": 50, "y": 30 },
+      "isAvailable": true,
+      "isCompleted": false
+    },
+    "modulo1": {
+      "title": "📚 Módulo 1",
+      "description": "Conectado ao centro - deve estar desbloqueado",
+      "content": "Este módulo está conectado diretamente ao checkpoint e deve estar automaticamente disponível.",
+      "type": "content",
+      "position": { "x": 25, "y": 60 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["centro"]
+    },
+    "modulo2": {
+      "title": "📚 Módulo 2",
+      "description": "Também conectado ao centro - deve estar desbloqueado",
+      "content": "Este módulo também está conectado diretamente ao checkpoint e deve estar disponível.",
+      "type": "content",
+      "position": { "x": 75, "y": 60 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["centro"]
+    },
+    "modulo3": {
+      "title": "📚 Módulo 3",
+      "description": "Depende do Módulo 1 - deve ficar bloqueado",
+      "content": "Este módulo depende do Módulo 1, então deve permanecer bloqueado até que o Módulo 1 seja completado.",
+      "type": "content",
+      "position": { "x": 25, "y": 85 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["modulo1"]
+    },
+    "checkpoint2": {
+      "title": "🎯 Checkpoint Avançado",
+      "description": "Segundo checkpoint - depende de módulos anteriores",
+      "content": "Este checkpoint só fica disponível após completar os módulos básicos.",
+      "type": "checkpoint",
+      "position": { "x": 50, "y": 85 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["modulo1", "modulo2"]
+    },
+    "modulo4": {
+      "title": "📚 Módulo Avançado",
+      "description": "Conectado ao Checkpoint 2 - desbloqueado quando checkpoint estiver disponível",
+      "content": "Este módulo está conectado ao segundo checkpoint e deve ser desbloqueado automaticamente quando o checkpoint estiver disponível.",
+      "type": "content",
+      "position": { "x": 75, "y": 85 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["checkpoint2"]
+    }
+  },
+  "connections": [
+    { "from": "centro", "to": "modulo1" },
+    { "from": "centro", "to": "modulo2" },
+    { "from": "modulo1", "to": "modulo3" },
+    { "from": "modulo1", "to": "checkpoint2" },
+    { "from": "modulo2", "to": "checkpoint2" },
+    { "from": "checkpoint2", "to": "modulo4" }
+  ]
+}
