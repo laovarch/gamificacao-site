@@ -562,16 +562,20 @@ function toggleCustomConfigSection() {
         const downloadBtn = gameContainerEl.querySelector('#downloadHtmlBtn');
         if (downloadBtn) downloadBtn.remove();
         const gameContainer = gameContainerEl.outerHTML;
-        // Copia o JS do arquivo externo, removendo funções de upload e seleção de template e forçando inicialização
+        // Copia o JS do arquivo externo, removendo apenas funções de upload mas mantendo as de interação
         let scriptCode = '';
         try {
             const resp = await fetch('public/gamificacao.js');
             let fullJs = await resp.text();
-            // Remove funções de upload, fileInput, uploadArea, fileInfo, handleFileUpload, toggleCustomConfigSection, loadPredefinedConfig
+            // Remove apenas as funções de upload e configuração, mantendo as de interação dos módulos
             fullJs = fullJs.replace(/\/\/[\s\S]*?document\.addEventListener\('DOMContentLoaded', function\(\)[\s\S]*?\}\);/g, '');
-            fullJs = fullJs.replace(/function handleFileUpload[\s\S]*?\}\n/g, '');
-            fullJs = fullJs.replace(/function toggleCustomConfigSection[\s\S]*?\}\n/g, '');
-            fullJs = fullJs.replace(/function loadPredefinedConfig[\s\S]*?\}\n/g, '');
+            fullJs = fullJs.replace(/function handleFileUpload[\s\S]*?\n(?=\n|function|\/\/|$)/g, '');
+            fullJs = fullJs.replace(/function toggleCustomConfigSection[\s\S]*?\n(?=\n|function|\/\/|$)/g, '');
+            fullJs = fullJs.replace(/function loadPredefinedConfig[\s\S]*?\n(?=\n|function|\/\/|$)/g, '');
+            // Remove referências a elementos de upload que não existirão no HTML exportado
+            fullJs = fullJs.replace(/const fileInput[\s\S]*?(?=\n\n|\/\/|$)/g, '');
+            fullJs = fullJs.replace(/const uploadArea[\s\S]*?(?=\n\n|\/\/|$)/g, '');
+            fullJs = fullJs.replace(/const fileInfo[\s\S]*?(?=\n\n|\/\/|$)/g, '');
             // Força a chamada de loadConfiguration ao abrir o HTML
             fullJs += '\nwindow.addEventListener("DOMContentLoaded", function() { if (window.currentConfig) { loadConfiguration(window.currentConfig, "personalizada"); } });\n';
             scriptCode = fullJs;
