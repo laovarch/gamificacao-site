@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Teste - Setas de Dependência</title>
+    <link rel="stylesheet" href="public/index.html">
+    <script src="public/gamificacao-core.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Teste das Setas de Dependência</h1>
+        <p>Configuração com emojis personalizados e fluxo de dependências com setas</p>
+    </div>
+
+    <!-- Container do jogo -->
+    <div id="gameContainer">
+        <div id="gameHeader">
+            <h2 id="gameTitle">Carregando...</h2>
+            <p id="gameSubtitle">Preparando experiência...</p>
+        </div>
+        
+        <div id="progressMap"></div>
+        
+        <div id="statusBar">📊 Preparando sistema...</div>
+    </div>
+
+    <!-- Painel de conteúdo -->
+    <div id="contentPanel">
+        <div id="contentHeader">
+            <h3 id="contentTitle"></h3>
+            <p id="contentDescription"></p>
+        </div>
+        <div id="contentBody"></div>
+        <div id="actionButtons"></div>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="tooltip"></div>
+
+    <script>
+        // Carrega configuração automaticamente
+        fetch('config-teste-editor.json')
+            .then(response => response.json())
+            .then(config => {
+                loadConfiguration(config, 'teste-setas');
+            })
+            .catch(error => {
+                console.error('Erro ao carregar configuração:', error);
+                document.getElementById('gameTitle').textContent = 'Erro ao carregar';
+                document.getElementById('gameSubtitle').textContent = 'Verifique se o arquivo config-teste-editor.json existe';
+            });
+    </script>
+</body>
+</html>

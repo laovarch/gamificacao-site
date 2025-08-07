@@ -346,6 +346,10 @@
                         <strong>🎯 Teste Checkpoint</strong><br>
                         <small>Demonstra desbloqueio automático</small>
                     </button>
+                    <button class="template-btn" onclick="loadTestConfig()">
+                        <strong>🚀 Teste Setas</strong><br>
+                        <small>Configuração com emojis e setas</small>
+                    </button>
                 </div>
 
                 <h4>➕ Adicionar Módulo</h4>
@@ -874,6 +878,11 @@
             svg.style.height = '100%';
             svg.style.zIndex = '1';
             svg.style.pointerEvents = 'none';
+            
+            // Define viewBox para usar coordenadas consistentes
+            svg.setAttribute('viewBox', '0 0 800 600');
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            
             editor.appendChild(svg);
 
             // Adiciona linhas de conexão como SVG
@@ -902,21 +911,68 @@
         }
 
         function createSVGLine(svg, fromPos, toPos) {
+            // Cria grupo para linha e seta
+            const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+            // Converte posições percentuais para coordenadas do viewBox (800x600)
+            const x1 = (fromPos.x / 100) * 800;
+            const y1 = (fromPos.y / 100) * 600;
+            const x2 = (toPos.x / 100) * 800;
+            const y2 = (toPos.y / 100) * 600;
+
+            // Cria linha principal
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', `${fromPos.x}%`);
-            line.setAttribute('y1', `${fromPos.y}%`);
-            line.setAttribute('x2', `${toPos.x}%`);
-            line.setAttribute('y2', `${toPos.y}%`);
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
             line.setAttribute('stroke', '#0066cc');
-            line.setAttribute('stroke-width', '3');
+            line.setAttribute('stroke-width', '6');
             line.setAttribute('stroke-linecap', 'round');
             line.setAttribute('opacity', '0.8');
+
+            // Calcula ponto médio para a seta
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+
+            // Calcula ângulo da linha para orientar a seta
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            
+            // Cria seta (triângulo) - tamanho proporcional ao viewBox
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            
+            const arrowSize = 20; // Tamanho da seta no viewBox
+            
+            // Pontos da seta (triângulo apontando para a direita)
+            const arrowPoints = [
+                [arrowSize, 0],              // Ponta da seta
+                [-arrowSize, -arrowSize/2],  // Canto superior esquerdo  
+                [-arrowSize, arrowSize/2]    // Canto inferior esquerdo
+            ];
+            
+            // Rotaciona e posiciona os pontos da seta
+            const rotatedPoints = arrowPoints.map(([px, py]) => {
+                const rotatedX = px * Math.cos(angle) - py * Math.sin(angle);
+                const rotatedY = px * Math.sin(angle) + py * Math.cos(angle);
+                return [midX + rotatedX, midY + rotatedY];
+            });
+            
+            const pointsString = rotatedPoints.map(([x, y]) => `${x},${y}`).join(' ');
+            arrow.setAttribute('points', pointsString);
+            arrow.setAttribute('fill', '#0066cc');
+            arrow.setAttribute('opacity', '0.95');
+            arrow.setAttribute('stroke', '#004499');
+            arrow.setAttribute('stroke-width', '2');
+
+            // Adiciona linha e seta ao grupo
+            group.appendChild(line);
+            group.appendChild(arrow);
             
             // Adiciona uma pequena animação
-            line.style.transition = 'all 0.3s ease';
+            group.style.transition = 'all 0.3s ease';
             
-            svg.appendChild(line);
-            return line;
+            svg.appendChild(group);
+            return group;
         }
 
         function createModuleElement(id, module) {
@@ -1359,7 +1415,24 @@
             console.log('=== FIM DO TESTE ===');
         }
 
-        // Inicialização
+        // Função para carregar configuração de teste com setas
+        function loadTestConfig() {
+            fetch('config-teste-editor.json')
+                .then(response => response.json())
+                .then(config => {
+                    currentConfig = config;
+                    document.getElementById('configTitle').value = config.title;
+                    updateConnections();
+                    updateVisualEditor();
+                    updateJsonOutput();
+                    showNotification('🚀 Configuração de teste carregada! Agora você pode ver as setas no editor.');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar configuração de teste:', error);
+                    showNotification('❌ Erro ao carregar configuração de teste. Verifique se o arquivo existe.');
+                });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM carregado, iniciando editor...');
             

@@ -55,7 +55,7 @@ function generateProgressMap() {
     const mapContainer = document.getElementById('progressMap');
     mapContainer.innerHTML = '';
 
-    // Cria SVG para as linhas
+    // Cria SVG para as linhas com dimensões fixas
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.style.position = 'absolute';
     svg.style.top = '0';
@@ -64,6 +64,11 @@ function generateProgressMap() {
     svg.style.height = '100%';
     svg.style.zIndex = '1';
     svg.style.pointerEvents = 'none';
+    
+    // Define viewBox para usar coordenadas consistentes
+    svg.setAttribute('viewBox', '0 0 800 600');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    
     mapContainer.appendChild(svg);
 
     // Gera módulos
@@ -86,18 +91,65 @@ function createSVGLine(svg, fromId, toId) {
     
     if (!fromModule || !toModule) return null;
 
+    // Cria grupo para linha e seta
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+    // Converte posições percentuais para coordenadas do viewBox (800x600)
+    const x1 = (fromModule.position.x / 100) * 800;
+    const y1 = (fromModule.position.y / 100) * 600;
+    const x2 = (toModule.position.x / 100) * 800;
+    const y2 = (toModule.position.y / 100) * 600;
+
+    // Cria linha principal
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', `${fromModule.position.x}%`);
-    line.setAttribute('y1', `${fromModule.position.y}%`);
-    line.setAttribute('x2', `${toModule.position.x}%`);
-    line.setAttribute('y2', `${toModule.position.y}%`);
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
     line.setAttribute('stroke', '#667eea');
-    line.setAttribute('stroke-width', '4');
+    line.setAttribute('stroke-width', '6');
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('opacity', '0.8');
 
-    svg.appendChild(line);
-    return line;
+    // Calcula ponto médio para a seta
+    const midX = (x1 + x2) / 2;
+    const midY = (y1 + y2) / 2;
+
+    // Calcula ângulo da linha para orientar a seta
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    
+    // Cria seta (triângulo) - tamanho proporcional ao viewBox
+    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    
+    const arrowSize = 20; // Tamanho da seta no viewBox
+    
+    // Pontos da seta (triângulo apontando para a direita)
+    const arrowPoints = [
+        [arrowSize, 0],              // Ponta da seta
+        [-arrowSize, -arrowSize/2],  // Canto superior esquerdo  
+        [-arrowSize, arrowSize/2]    // Canto inferior esquerdo
+    ];
+    
+    // Rotaciona e posiciona os pontos da seta
+    const rotatedPoints = arrowPoints.map(([px, py]) => {
+        const rotatedX = px * Math.cos(angle) - py * Math.sin(angle);
+        const rotatedY = px * Math.sin(angle) + py * Math.cos(angle);
+        return [midX + rotatedX, midY + rotatedY];
+    });
+    
+    const pointsString = rotatedPoints.map(([x, y]) => `${x},${y}`).join(' ');
+    arrow.setAttribute('points', pointsString);
+    arrow.setAttribute('fill', '#667eea');
+    arrow.setAttribute('opacity', '0.95');
+    arrow.setAttribute('stroke', '#4c63d2');
+    arrow.setAttribute('stroke-width', '2');
+
+    // Adiciona linha e seta ao grupo
+    group.appendChild(line);
+    group.appendChild(arrow);
+    
+    svg.appendChild(group);
+    return group;
 }
 
 function createModuleElement(id, module) {
