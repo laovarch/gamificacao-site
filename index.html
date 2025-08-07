@@ -540,13 +540,19 @@
         if (window.currentConfig) {
             configJson = JSON.stringify(window.currentConfig, null, 2);
         }
-        // Pega o HTML da área de gamificação (apenas o container do jogo)
+        // Pega apenas o HTML do gameContainer (sem upload, sem seleção de template)
         const gameContainer = document.getElementById('gameContainer').outerHTML;
-        // Copia o JS do arquivo externo
+        // Copia o JS do arquivo externo, removendo funções de upload e seleção de template
         let scriptCode = '';
         try {
             const resp = await fetch('public/gamificacao.js');
-            scriptCode = await resp.text();
+            let fullJs = await resp.text();
+            // Remove funções de upload, fileInput, uploadArea, fileInfo, handleFileUpload, toggleCustomConfigSection, loadPredefinedConfig
+            fullJs = fullJs.replace(/\/\/[\s\S]*?document\.addEventListener\('DOMContentLoaded', function\(\)[\s\S]*?\}\);/g, '');
+            fullJs = fullJs.replace(/function handleFileUpload[\s\S]*?\}\n/g, '');
+            fullJs = fullJs.replace(/function toggleCustomConfigSection[\s\S]*?\}\n/g, '');
+            fullJs = fullJs.replace(/function loadPredefinedConfig[\s\S]*?\}\n/g, '');
+            scriptCode = fullJs;
         } catch (e) {
             alert('Erro ao copiar o JS para o HTML exportado: ' + e.message);
             return;
