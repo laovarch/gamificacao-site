@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Configurações - Sistema de Gamificação</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            min-height: 80vh;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .panel h3 {
+            margin-bottom: 20px;
+            color: #667eea;
+            border-bottom: 2px solid #f0f2ff;
+            padding-bottom: 10px;
+        }
+
+        .visual-editor {
+            position: relative;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            min-height: 600px;
+            overflow: hidden;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .module-item {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .module-item:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .module-item.selected {
+            background: #e7f1ff;
+            border-color: #667eea;
+            border-width: 2px;
+        }
+
+        .module-preview {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .module-preview:hover {
+            transform: scale(1.1);
+        }
+
+        .module-preview.checkpoint {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            width: 80px;
+            height: 80px;
+        }
+
+        .module-preview.content {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .connection-line {
+            position: absolute;
+            height: 3px;
+            background: #667eea;
+            border-radius: 2px;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        .json-output {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .templates {
+            margin-bottom: 20px;
+        }
+
+        .template-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .template-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .position-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 1200px) {
+            .editor-layout {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .panel {
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Editor de Configurações</h1>
+            <p>Crie e edite configurações para o sistema de gamificação</p>
+        </div>
+
+        <div class="editor-layout">
+            <!-- Painel Esquerdo: Templates e Configuração Geral -->
+            <div class="panel">
+                <h3>📋 Configuração Geral</h3>
+                
+                <div class="form-group">
+                    <label for="configTitle">Título da Configuração:</label>
+                    <input type="text" id="configTitle" placeholder="Ex: Meu Curso de Programação">
+                </div>
+
+                <div class="templates">
+                    <h4>🎯 Templates Prontos</h4>
+                    <button class="template-btn" onclick="loadTemplate('empty')">
+                        <strong>📄 Configuração Vazia</strong><br>
+                        <small>Comece do zero</small>
+                    </button>
+                    <button class="template-btn" onclick="loadTemplate('simple')">
+                        <strong>🚀 Template Simples</strong><br>
+                        <small>4 módulos básicos</small>
+                    </button>
+                    <button class="template-btn" onclick="loadTemplate('course')">
+                        <strong>📚 Template Curso</strong><br>
+                        <small>Estrutura de curso completo</small>
+                    </button>
+                </div>
+
+                <h4>➕ Adicionar Módulo</h4>
+                <div class="form-group">
+                    <label for="moduleType">Tipo:</label>
+                    <select id="moduleType">
+                        <option value="checkpoint">🎯 Checkpoint (Centro)</option>
+                        <option value="content">📚 Conteúdo</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="addModule()">
+                    ➕ Adicionar Módulo
+                </button>
+            </div>
+
+            <!-- Painel Central: Editor Visual -->
+            <div class="panel">
+                <h3>🎨 Editor Visual</h3>
+                <div class="visual-editor" id="visualEditor" onclick="handleEditorClick(event)">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 1.1rem; text-align: center;">
+                        <div>
+                            <div style="font-size: 3rem; margin-bottom: 20px;">🎯</div>
+                            <div>Clique em "Adicionar Módulo" para começar<br>ou carregue um template</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Painel Direito: Propriedades e Exportação -->
+            <div class="panel">
+                <h3>⚙️ Propriedades do Módulo</h3>
+                
+                <div id="moduleProperties" style="display: none;">
+                    <div class="form-group">
+                        <label for="moduleTitle">Título:</label>
+                        <input type="text" id="moduleTitle" onchange="updateSelectedModule()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="moduleDescription">Descrição:</label>
+                        <input type="text" id="moduleDescription" onchange="updateSelectedModule()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="moduleContent">Conteúdo:</label>
+                        <textarea id="moduleContent" onchange="updateSelectedModule()"></textarea>
+                    </div>
+
+                    <div class="position-controls">
+                        <div class="form-group">
+                            <label for="moduleX">Posição X (%):</label>
+                            <input type="number" id="moduleX" min="0" max="100" onchange="updateSelectedModule()">
+                        </div>
+                        <div class="form-group">
+                            <label for="moduleY">Posição Y (%):</label>
+                            <input type="number" id="moduleY" min="0" max="100" onchange="updateSelectedModule()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="moduleDependencies">Dependências (IDs separados por vírgula):</label>
+                        <input type="text" id="moduleDependencies" placeholder="modulo1,modulo2" onchange="updateSelectedModule()">
+                    </div>
+
+                    <button class="btn btn-danger" onclick="deleteSelectedModule()">
+                        🗑️ Excluir Módulo
+                    </button>
+                </div>
+
+                <div id="noSelection" style="color: #666; text-align: center; padding: 20px;">
+                    Selecione um módulo no editor visual para editar suas propriedades
+                </div>
+
+                <h3 style="margin-top: 30px;">💾 Exportar Configuração</h3>
+                
+                <button class="btn btn-success" onclick="downloadConfig()">
+                    📥 Baixar JSON
+                </button>
+                
+                <button class="btn btn-secondary" onclick="copyToClipboard()">
+                    📋 Copiar JSON
+                </button>
+
+                <div class="json-output" id="jsonOutput">
+                    Configuração será exibida aqui...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentConfig = {
+            title: "Nova Configuração",
+            modules: {},
+            connections: []
+        };
+        
+        let selectedModule = null;
+        let moduleCounter = 0;
+
+        // Templates predefinidos
+        const templates = {
+            empty: {
+                title: "Nova Configuração",
+                modules: {},
+                connections: []
+            },
+            
+            simple: {
+                title: "Configuração Simples",
+                modules: {
+                    "centro": {
+                        title: "🎯 Centro",
+                        description: "Ponto central",
+                        content: "Este é o centro do aprendizado.",
+                        type: "checkpoint",
+                        position: { x: 50, y: 50 },
+                        isAvailable: true,
+                        isCompleted: false
+                    },
+                    "modulo1": {
+                        title: "📚 Módulo 1",
+                        description: "Primeiro módulo",
+                        content: "Conteúdo do primeiro módulo.",
+                        type: "content",
+                        position: { x: 30, y: 30 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "modulo2": {
+                        title: "📖 Módulo 2",
+                        description: "Segundo módulo",
+                        content: "Conteúdo do segundo módulo.",
+                        type: "content",
+                        position: { x: 70, y: 70 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["modulo1"]
+                    }
+                },
+                connections: [
+                    { from: "centro", to: "modulo1" },
+                    { from: "modulo1", to: "modulo2" }
+                ]
+            },
+            
+            course: {
+                title: "Template de Curso",
+                modules: {
+                    "centro": {
+                        title: "🎯 Centro de Aprendizado",
+                        description: "Início da jornada",
+                        content: "Bem-vindo ao curso!",
+                        type: "checkpoint",
+                        position: { x: 50, y: 50 },
+                        isAvailable: true,
+                        isCompleted: false
+                    },
+                    "introducao": {
+                        title: "📖 Introdução",
+                        description: "Conceitos básicos",
+                        content: "Fundamentos do curso.",
+                        type: "content",
+                        position: { x: 30, y: 20 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "teoria": {
+                        title: "🧠 Teoria",
+                        description: "Conhecimento teórico",
+                        content: "Base teórica necessária.",
+                        type: "content",
+                        position: { x: 70, y: 20 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["introducao"]
+                    },
+                    "pratica": {
+                        title: "⚡ Prática",
+                        description: "Aplicação prática",
+                        content: "Exercícios práticos.",
+                        type: "content",
+                        position: { x: 30, y: 80 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["teoria"]
+                    },
+                    "avancado": {
+                        title: "🚀 Avançado",
+                        description: "Tópicos avançados",
+                        content: "Conteúdo especializado.",
+                        type: "content",
+                        position: { x: 70, y: 80 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["pratica"]
+                    }
+                },
+                connections: [
+                    { from: "centro", to: "introducao" },
+                    { from: "introducao", to: "teoria" },
+                    { from: "teoria", to: "pratica" },
+                    { from: "pratica", to: "avancado" }
+                ]
+            }
+        };
+
+        function loadTemplate(templateName) {
+            currentConfig = JSON.parse(JSON.stringify(templates[templateName]));
+            document.getElementById('configTitle').value = currentConfig.title;
+            updateVisualEditor();
+            updateJsonOutput();
+            selectedModule = null;
+            updatePropertiesPanel();
+        }
+
+        function addModule() {
+            moduleCounter++;
+            const moduleId = `modulo${moduleCounter}`;
+            const moduleType = document.getElementById('moduleType').value;
+            
+            const newModule = {
+                title: `${moduleType === 'checkpoint' ? '🎯' : '📚'} Novo Módulo`,
+                description: "Descrição do módulo",
+                content: "Conteúdo do módulo.",
+                type: moduleType,
+                position: { x: 50, y: 50 },
+                isAvailable: moduleType === 'checkpoint',
+                isCompleted: false
+            };
+
+            if (moduleType === 'content') {
+                newModule.dependencies = [];
+            }
+
+            currentConfig.modules[moduleId] = newModule;
+            updateVisualEditor();
+            updateJsonOutput();
+        }
+
+        function updateVisualEditor() {
+            const editor = document.getElementById('visualEditor');
+            editor.innerHTML = '';
+
+            // Adiciona linhas de conexão
+            currentConfig.connections.forEach(connection => {
+                const fromModule = currentConfig.modules[connection.from];
+                const toModule = currentConfig.modules[connection.to];
+                
+                if (fromModule && toModule) {
+                    const line = createConnectionLine(fromModule.position, toModule.position);
+                    editor.appendChild(line);
+                }
+            });
+
+            // Adiciona módulos
+            Object.entries(currentConfig.modules).forEach(([id, module]) => {
+                const moduleElement = createModuleElement(id, module);
+                editor.appendChild(moduleElement);
+            });
+        }
+
+        function createModuleElement(id, module) {
+            const element = document.createElement('div');
+            element.className = `module-preview ${module.type}`;
+            element.id = `preview-${id}`;
+            element.style.left = `${module.position.x}%`;
+            element.style.top = `${module.position.y}%`;
+            element.style.transform = 'translate(-50%, -50%)';
+            
+            // Emoji baseado no tipo
+            const emoji = module.type === 'checkpoint' ? '🎯' : '📚';
+            element.textContent = emoji;
+            
+            element.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectModule(id);
+            });
+            
+            element.addEventListener('mousedown', (e) => {
+                if (e.button === 0) { // Left click
+                    startDragging(id, e);
+                }
+            });
+            
+            return element;
+        }
+
+        function createConnectionLine(from, to) {
+            const line = document.createElement('div');
+            line.className = 'connection-line';
+            
+            const dx = to.x - from.x;
+            const dy = to.y - from.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            
+            line.style.width = `${length}%`;
+            line.style.left = `${from.x}%`;
+            line.style.top = `${from.y}%`;
+            line.style.transform = `rotate(${angle}deg)`;
+            line.style.transformOrigin = '0 50%';
+            
+            return line;
+        }
+
+        function selectModule(moduleId) {
+            selectedModule = moduleId;
+            
+            // Atualiza visual
+            document.querySelectorAll('.module-preview').forEach(el => {
+                el.style.border = '2px solid transparent';
+            });
+            
+            const selected = document.getElementById(`preview-${moduleId}`);
+            if (selected) {
+                selected.style.border = '2px solid #ffc107';
+            }
+            
+            updatePropertiesPanel();
+        }
+
+        function updatePropertiesPanel() {
+            const propsPanel = document.getElementById('moduleProperties');
+            const noSelection = document.getElementById('noSelection');
+            
+            if (selectedModule && currentConfig.modules[selectedModule]) {
+                const module = currentConfig.modules[selectedModule];
+                
+                document.getElementById('moduleTitle').value = module.title;
+                document.getElementById('moduleDescription').value = module.description;
+                document.getElementById('moduleContent').value = module.content;
+                document.getElementById('moduleX').value = module.position.x;
+                document.getElementById('moduleY').value = module.position.y;
+                document.getElementById('moduleDependencies').value = 
+                    module.dependencies ? module.dependencies.join(',') : '';
+                
+                propsPanel.style.display = 'block';
+                noSelection.style.display = 'none';
+            } else {
+                propsPanel.style.display = 'none';
+                noSelection.style.display = 'block';
+            }
+        }
+
+        function updateSelectedModule() {
+            if (!selectedModule || !currentConfig.modules[selectedModule]) return;
+            
+            const module = currentConfig.modules[selectedModule];
+            
+            module.title = document.getElementById('moduleTitle').value;
+            module.description = document.getElementById('moduleDescription').value;
+            module.content = document.getElementById('moduleContent').value;
+            module.position.x = parseInt(document.getElementById('moduleX').value);
+            module.position.y = parseInt(document.getElementById('moduleY').value);
+            
+            const deps = document.getElementById('moduleDependencies').value;
+            if (deps.trim()) {
+                module.dependencies = deps.split(',').map(d => d.trim()).filter(d => d);
+            } else {
+                delete module.dependencies;
+            }
+            
+            // Atualiza título da configuração
+            const title = document.getElementById('configTitle').value;
+            if (title) {
+                currentConfig.title = title;
+            }
+            
+            updateConnections();
+            updateVisualEditor();
+            updateJsonOutput();
+        }
+
+        function updateConnections() {
+            currentConfig.connections = [];
+            
+            Object.entries(currentConfig.modules).forEach(([id, module]) => {
+                if (module.dependencies) {
+                    module.dependencies.forEach(depId => {
+                        if (currentConfig.modules[depId]) {
+                            currentConfig.connections.push({ from: depId, to: id });
+                        }
+                    });
+                }
+            });
+        }
+
+        function deleteSelectedModule() {
+            if (!selectedModule) return;
+            
+            if (confirm(`Tem certeza que deseja excluir o módulo "${currentConfig.modules[selectedModule].title}"?`)) {
+                delete currentConfig.modules[selectedModule];
+                
+                // Remove dependências que referenciam este módulo
+                Object.values(currentConfig.modules).forEach(module => {
+                    if (module.dependencies) {
+                        module.dependencies = module.dependencies.filter(dep => dep !== selectedModule);
+                        if (module.dependencies.length === 0) {
+                            delete module.dependencies;
+                        }
+                    }
+                });
+                
+                selectedModule = null;
+                updateConnections();
+                updateVisualEditor();
+                updatePropertiesPanel();
+                updateJsonOutput();
+            }
+        }
+
+        function updateJsonOutput() {
+            const output = document.getElementById('jsonOutput');
+            output.textContent = JSON.stringify(currentConfig, null, 2);
+        }
+
+        function downloadConfig() {
+            const title = currentConfig.title || 'configuracao';
+            const filename = `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.json`;
+            
+            const blob = new Blob([JSON.stringify(currentConfig, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function copyToClipboard() {
+            const json = JSON.stringify(currentConfig, null, 2);
+            navigator.clipboard.writeText(json).then(() => {
+                alert('JSON copiado para a área de transferência!');
+            });
+        }
+
+        function handleEditorClick(event) {
+            if (event.target.id === 'visualEditor') {
+                selectedModule = null;
+                document.querySelectorAll('.module-preview').forEach(el => {
+                    el.style.border = '2px solid transparent';
+                });
+                updatePropertiesPanel();
+            }
+        }
+
+        // Sistema de arrastar e soltar
+        let dragging = null;
+        let dragOffset = { x: 0, y: 0 };
+
+        function startDragging(moduleId, event) {
+            dragging = moduleId;
+            const editor = document.getElementById('visualEditor');
+            const rect = editor.getBoundingClientRect();
+            const module = currentConfig.modules[moduleId];
+            
+            dragOffset.x = (event.clientX - rect.left) / rect.width * 100 - module.position.x;
+            dragOffset.y = (event.clientY - rect.top) / rect.height * 100 - module.position.y;
+            
+            document.addEventListener('mousemove', handleDragging);
+            document.addEventListener('mouseup', stopDragging);
+        }
+
+        function handleDragging(event) {
+            if (!dragging) return;
+            
+            const editor = document.getElementById('visualEditor');
+            const rect = editor.getBoundingClientRect();
+            
+            const x = Math.max(0, Math.min(100, (event.clientX - rect.left) / rect.width * 100 - dragOffset.x));
+            const y = Math.max(0, Math.min(100, (event.clientY - rect.top) / rect.height * 100 - dragOffset.y));
+            
+            currentConfig.modules[dragging].position.x = x;
+            currentConfig.modules[dragging].position.y = y;
+            
+            if (selectedModule === dragging) {
+                document.getElementById('moduleX').value = Math.round(x);
+                document.getElementById('moduleY').value = Math.round(y);
+            }
+            
+            updateVisualEditor();
+        }
+
+        function stopDragging() {
+            dragging = null;
+            document.removeEventListener('mousemove', handleDragging);
+            document.removeEventListener('mouseup', stopDragging);
+            updateJsonOutput();
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTemplate('empty');
+        });
+    </script>
+</body>
+</html>

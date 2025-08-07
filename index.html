@@ -44,6 +44,72 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
 
+        .upload-section, .predefined-section, .editor-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .editor-section {
+            border-bottom: none;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            border-color: #5a6fd8;
+            background: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #28a745;
+            background: #f8fff8;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-text strong {
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            color: #155724;
+        }
+
+        .btn-editor {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-editor:hover {
+            background: linear-gradient(45deg, #138496, #117a8b);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
         .config-buttons {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -321,17 +387,48 @@
         </div>
 
         <div class="config-selector">
-            <h3>📋 Selecione uma Configuração para Testar:</h3>
-            <div class="config-buttons">
-                <button class="config-btn" onclick="loadConfig('teste')">
-                    🧪 Teste (2 módulos)
-                </button>
-                <button class="config-btn" onclick="loadConfig('simples')">
-                    🚀 Simples (4 módulos)
-                </button>
-                <button class="config-btn" onclick="loadConfig('completa')">
-                    📚 Completa (11 módulos)
-                </button>
+            <h3>📋 Configurações do Sistema:</h3>
+            
+            <!-- Upload de arquivo JSON -->
+            <div class="upload-section">
+                <h4>📁 Carregar Configuração Personalizada</h4>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" accept=".json" style="display: none;">
+                    <div class="upload-content">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">
+                            <strong>Clique aqui ou arraste um arquivo JSON</strong>
+                            <br>
+                            <small>Arquivo de configuração do sistema de gamificação</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="file-info" id="fileInfo" style="display: none;"></div>
+            </div>
+
+            <!-- Configurações predefinidas -->
+            <div class="predefined-section">
+                <h4>🎮 Configurações Predefinidas</h4>
+                <div class="config-buttons">
+                    <button class="config-btn" onclick="loadPredefinedConfig('teste')">
+                        🧪 Teste (2 módulos)
+                    </button>
+                    <button class="config-btn" onclick="loadPredefinedConfig('simples')">
+                        🚀 Simples (4 módulos)
+                    </button>
+                    <button class="config-btn" onclick="loadPredefinedConfig('completa')">
+                        📚 Completa (11 módulos)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Link para o editor -->
+            <div class="editor-section">
+                <h4>⚙️ Criar Nova Configuração</h4>
+                <p>Use nosso editor visual para criar suas próprias configurações:</p>
+                <a href="config-editor.html" class="btn-editor" target="_blank">
+                    🛠️ Abrir Editor de Configurações
+                </a>
             </div>
         </div>
 
@@ -361,92 +458,333 @@
     <div class="module-tooltip" id="tooltip"></div>
 
     <script>
-        // Mapeamento dos tipos de configuração para arquivos JSON
-        const configFiles = {
-            teste: './config-teste.json',
-            simples: './config-simples.json',
-            completa: './config-completa.json'
+        // Configurações predefinidas embutidas
+        const predefinedConfigs = {
+            teste: {
+                title: "🧪 Configuração de Teste",
+                modules: {
+                    "centro": {
+                        title: "🎯 Centro",
+                        description: "Ponto central do sistema",
+                        content: "Este é o centro do seu aprendizado. A partir daqui você pode acessar todos os módulos conectados.",
+                        type: "checkpoint",
+                        position: { x: 50, y: 50 },
+                        isAvailable: true,
+                        isCompleted: false
+                    },
+                    "modulo1": {
+                        title: "📚 Módulo 1",
+                        description: "Primeiro módulo de conteúdo",
+                        content: "Conteúdo do primeiro módulo. Este é um exemplo de como o sistema funciona com dependências entre módulos.",
+                        type: "content",
+                        position: { x: 20, y: 30 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "modulo2": {
+                        title: "📖 Módulo 2", 
+                        description: "Segundo módulo - desbloqueado após módulo 1",
+                        content: "Este módulo só fica disponível depois que você completar o Módulo 1. Demonstra o sistema de dependências.",
+                        type: "content",
+                        position: { x: 80, y: 70 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["modulo1"]
+                    }
+                },
+                connections: [
+                    { from: "centro", to: "modulo1" },
+                    { from: "modulo1", to: "modulo2" }
+                ]
+            },
+
+            simples: {
+                title: "🚀 Configuração Simples",
+                modules: {
+                    "centro": {
+                        title: "🎯 Centro de Aprendizado",
+                        description: "Seu ponto de partida",
+                        content: "Bem-vindo ao sistema de aprendizado! A partir deste centro você pode acessar os módulos do curso.",
+                        type: "checkpoint",
+                        position: { x: 50, y: 50 },
+                        isAvailable: true,
+                        isCompleted: false
+                    },
+                    "introducao": {
+                        title: "📖 Introdução",
+                        description: "Conceitos básicos e fundamentais",
+                        content: "Aprenda os fundamentos essenciais que servirão de base para todo o curso. Este módulo é obrigatório para avançar.",
+                        type: "content",
+                        position: { x: 25, y: 25 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "pratica": {
+                        title: "⚡ Prática",
+                        description: "Exercícios práticos e aplicação",
+                        content: "Coloque em prática o que aprendeu na introdução. Exercícios hands-on para solidificar o conhecimento.",
+                        type: "content",
+                        position: { x: 75, y: 25 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["introducao"]
+                    },
+                    "avancado": {
+                        title: "🚀 Avançado",
+                        description: "Conceitos avançados e especializados",
+                        content: "Tópicos mais complexos e especializados. Para estudantes que dominaram os conceitos básicos e práticos.",
+                        type: "content",
+                        position: { x: 50, y: 75 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["pratica"]
+                    }
+                },
+                connections: [
+                    { from: "centro", to: "introducao" },
+                    { from: "introducao", to: "pratica" },
+                    { from: "pratica", to: "avancado" }
+                ]
+            },
+
+            completa: {
+                title: "📚 Curso Completo de Direção",
+                modules: {
+                    "centro": {
+                        title: "🎯 Centro de Aprendizado",
+                        description: "Início da sua jornada na direção",
+                        content: "Bem-vindo ao curso completo de direção! Aqui você aprenderá tudo sobre condução segura e responsável.",
+                        type: "checkpoint",
+                        position: { x: 50, y: 50 },
+                        isAvailable: true,
+                        isCompleted: false
+                    },
+                    "legislacao": {
+                        title: "📚 Legislação",
+                        description: "Código de Trânsito Brasileiro",
+                        content: "Aprenda as leis e regulamentações do trânsito brasileiro. Base fundamental para qualquer condutor.",
+                        type: "content",
+                        position: { x: 30, y: 20 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "sinalizacao": {
+                        title: "🚦 Sinalização",
+                        description: "Placas e sinais de trânsito",
+                        content: "Entenda todos os tipos de sinalização viária: placas, semáforos, marcações no asfalto e gestos.",
+                        type: "content",
+                        position: { x: 70, y: 20 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "veiculo": {
+                        title: "🚗 Conhecendo o Veículo",
+                        description: "Partes e funcionamento do automóvel",
+                        content: "Aprenda sobre as partes do veículo, funcionamento básico e procedimentos de segurança.",
+                        type: "content",
+                        position: { x: 20, y: 35 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["legislacao"]
+                    },
+                    "direcao-defensiva": {
+                        title: "🛡️ Direção Defensiva",
+                        description: "Técnicas de condução segura",
+                        content: "Aprenda técnicas para dirigir com segurança, antecipando situações de risco.",
+                        type: "content",
+                        position: { x: 80, y: 35 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["sinalizacao"]
+                    },
+                    "primeiros-socorros": {
+                        title: "🏥 Primeiros Socorros",
+                        description: "Atendimento de emergência",
+                        content: "Aprenda procedimentos básicos de primeiros socorros em caso de acidentes.",
+                        type: "content",
+                        position: { x: 15, y: 65 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["veiculo"]
+                    },
+                    "meio-ambiente": {
+                        title: "🌱 Meio Ambiente",
+                        description: "Direção ecológica e sustentável",
+                        content: "Como dirigir respeitando o meio ambiente e contribuindo para um trânsito sustentável.",
+                        type: "content",
+                        position: { x: 85, y: 65 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["direcao-defensiva"]
+                    },
+                    "pratica-1": {
+                        title: "🎮 Prática 1",
+                        description: "Primeira aula prática",
+                        content: "Sua primeira experiência ao volante com instrutor. Movimentos básicos e familiarização.",
+                        type: "content",
+                        position: { x: 35, y: 80 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["primeiros-socorros", "meio-ambiente"]
+                    },
+                    "pratica-2": {
+                        title: "🚙 Prática 2",
+                        description: "Aula prática avançada",
+                        content: "Manobras e situações mais complexas. Preparação para o exame prático.",
+                        type: "content",
+                        position: { x: 65, y: 80 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["pratica-1"]
+                    },
+                    "simulado": {
+                        title: "📝 Simulado",
+                        description: "Teste seus conhecimentos",
+                        content: "Simulado do exame teórico do DETRAN. Prepare-se para a prova oficial!",
+                        type: "content",
+                        position: { x: 40, y: 95 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["pratica-2"]
+                    },
+                    "exame": {
+                        title: "🏆 Exame Final",
+                        description: "Prova final do curso",
+                        content: "Demonstre tudo que aprendeu! Exame final teórico e prático.",
+                        type: "content",
+                        position: { x: 60, y: 95 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["simulado"]
+                    }
+                },
+                connections: [
+                    { from: "centro", to: "legislacao" },
+                    { from: "centro", to: "sinalizacao" },
+                    { from: "legislacao", to: "veiculo" },
+                    { from: "sinalizacao", to: "direcao-defensiva" },
+                    { from: "veiculo", to: "primeiros-socorros" },
+                    { from: "direcao-defensiva", to: "meio-ambiente" },
+                    { from: "primeiros-socorros", to: "pratica-1" },
+                    { from: "meio-ambiente", to: "pratica-1" },
+                    { from: "pratica-1", to: "pratica-2" },
+                    { from: "pratica-2", to: "simulado" },
+                    { from: "pratica-2", to: "exame" },
+                    { from: "simulado", to: "exame" }
+                ]
+            }
         };
 
         let currentConfig = null;
         let currentModule = null;
 
-        async function loadConfig(configType) {
-            try {
-                // Mostra loading
-                showLoadingState(configType);
-                
-                // Carrega configuração do arquivo JSON
-                const response = await fetch(configFiles[configType]);
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
+        // Inicialização do sistema de upload
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInfo = document.getElementById('fileInfo');
+
+            // Clique na área de upload
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
                 }
-                
-                currentConfig = await response.json();
+            });
+
+            // Seleção de arquivo
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+        });
+
+        function handleFileUpload(file) {
+            if (!file.name.endsWith('.json')) {
+                showNotification('❌ Por favor, selecione um arquivo JSON válido');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    
+                    // Validação básica da estrutura
+                    if (!config.title || !config.modules) {
+                        throw new Error('Estrutura de configuração inválida');
+                    }
+
+                    // Mostra informações do arquivo
+                    const fileInfo = document.getElementById('fileInfo');
+                    fileInfo.innerHTML = `
+                        <strong>✅ Arquivo carregado com sucesso!</strong><br>
+                        📁 ${file.name}<br>
+                        📊 ${Object.keys(config.modules).length} módulos encontrados<br>
+                        🎯 ${config.title}
+                    `;
+                    fileInfo.style.display = 'block';
+
+                    // Carrega a configuração
+                    loadConfiguration(config, 'personalizada');
+                    
+                } catch (error) {
+                    showNotification('❌ Erro ao processar arquivo JSON: ' + error.message);
+                    console.error('Erro no JSON:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function loadPredefinedConfig(configType) {
+            const config = predefinedConfigs[configType];
+            if (config) {
+                loadConfiguration(config, configType);
                 
                 // Atualiza botões
                 document.querySelectorAll('.config-btn').forEach(btn => btn.classList.remove('active'));
                 event.target.classList.add('active');
-                
-                // Atualiza interface
-                document.getElementById('gameTitle').textContent = currentConfig.title;
-                document.getElementById('gameSubtitle').textContent = 
-                    `${Object.keys(currentConfig.modules).length} módulos disponíveis`;
-                
-                // Mostra container do jogo
-                document.getElementById('gameContainer').classList.add('active');
-                
-                // Gera mapa
-                generateProgressMap();
-                updateStatusBar();
-                
-                // Fecha painel de conteúdo se estiver aberto
-                closeContentPanel();
-                
-            } catch (error) {
-                console.error('Erro ao carregar configuração:', error);
-                showErrorState(configType, error.message);
             }
         }
 
-        function showLoadingState(configType) {
-            const gameContainer = document.getElementById('gameContainer');
-            gameContainer.classList.add('active');
+        function loadConfiguration(config, source) {
+            currentConfig = JSON.parse(JSON.stringify(config)); // Deep clone
             
-            document.getElementById('gameTitle').textContent = `Carregando ${configType}...`;
-            document.getElementById('gameSubtitle').textContent = 'Aguarde enquanto carregamos a configuração';
-            document.getElementById('statusBar').textContent = '⏳ Carregando dados...';
+            // Atualiza interface
+            document.getElementById('gameTitle').textContent = currentConfig.title;
+            document.getElementById('gameSubtitle').textContent = 
+                `${Object.keys(currentConfig.modules).length} módulos disponíveis`;
             
-            const mapContainer = document.getElementById('progressMap');
-            mapContainer.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 1.2rem; color: #666;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 3rem; margin-bottom: 20px;">🔄</div>
-                        <div>Carregando configuração...</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showErrorState(configType, errorMessage) {
-            document.getElementById('gameTitle').textContent = '❌ Erro ao Carregar';
-            document.getElementById('gameSubtitle').textContent = `Falha ao carregar ${configType}`;
-            document.getElementById('statusBar').textContent = '❌ Erro na configuração';
+            // Mostra container do jogo
+            document.getElementById('gameContainer').classList.add('active');
             
-            const mapContainer = document.getElementById('progressMap');
-            mapContainer.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 1.1rem; color: #dc3545;">
-                    <div style="text-align: center; background: #f8d7da; padding: 30px; border-radius: 10px; border: 1px solid #f5c6cb;">
-                        <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
-                        <div style="font-weight: bold; margin-bottom: 10px;">Erro ao Carregar Configuração</div>
-                        <div style="margin-bottom: 15px;">Arquivo: <code>${configFiles[configType]}</code></div>
-                        <div style="font-size: 0.9rem; color: #721c24;">${errorMessage}</div>
-                        <div style="margin-top: 15px; font-size: 0.8rem;">
-                            💡 Certifique-se de que os arquivos JSON estão no mesmo diretório
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Gera mapa
+            generateProgressMap();
+            updateStatusBar();
+            
+            // Fecha painel de conteúdo se estiver aberto
+            closeContentPanel();
+            
+            showNotification(`🎉 Configuração "${currentConfig.title}" carregada com sucesso!`);
         }
 
         function generateProgressMap() {
