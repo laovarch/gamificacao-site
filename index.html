@@ -28,6 +28,45 @@
             text-align: center;
             margin-bottom: 30px;
             color: white;
+            position: relative;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(45deg, #34ce57, #28dcc6);
         }
 
         .header h1 {
@@ -52,6 +91,47 @@
 
         .editor-section {
             border-bottom: none;
+        }
+
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .collapsible-header:hover {
+            color: #667eea;
+        }
+
+        .toggle-icon {
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-content.hidden {
+            max-height: 0;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .collapsible-content.visible {
+            max-height: 500px;
+            opacity: 1;
         }
 
         .upload-area {
@@ -91,23 +171,6 @@
             border: 1px solid #c3e6cb;
             border-radius: 8px;
             color: #155724;
-        }
-
-        .btn-editor {
-            display: inline-block;
-            padding: 15px 30px;
-            background: linear-gradient(45deg, #17a2b8, #138496);
-            color: white;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .btn-editor:hover {
-            background: linear-gradient(45deg, #138496, #117a8b);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
 
         .config-buttons {
@@ -386,8 +449,15 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎮 Sistema de Gamificação</h1>
-            <p>Demonstração interativa do sistema de aprendizado progressivo</p>
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>🎮 Sistema de Gamificação</h1>
+                    <p>Demonstração interativa do sistema de aprendizado progressivo</p>
+                </div>
+                <a href="config-editor.html" class="header-button" target="_blank">
+                    🛠️ Editor
+                </a>
+            </div>
         </div>
 
         <div class="config-selector">
@@ -395,19 +465,24 @@
             
             <!-- Upload de arquivo JSON -->
             <div class="upload-section">
-                <h4>📁 Carregar Configuração Personalizada</h4>
-                <div class="upload-area" id="uploadArea">
-                    <input type="file" id="fileInput" accept=".json" style="display: none;">
-                    <div class="upload-content">
-                        <div class="upload-icon">📁</div>
-                        <div class="upload-text">
-                            <strong>Clique aqui ou arraste um arquivo JSON</strong>
-                            <br>
-                            <small>Arquivo de configuração do sistema de gamificação</small>
+                <h4 class="collapsible-header" onclick="toggleCustomConfigSection()">
+                    📁 Carregar Configuração Personalizada 
+                    <span class="toggle-icon" id="customConfigToggle">▼</span>
+                </h4>
+                <div class="collapsible-content" id="customConfigContent" style="display: none;">
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="fileInput" accept=".json" style="display: none;">
+                        <div class="upload-content">
+                            <div class="upload-icon">📁</div>
+                            <div class="upload-text">
+                                <strong>Clique aqui ou arraste um arquivo JSON</strong>
+                                <br>
+                                <small>Arquivo de configuração do sistema de gamificação</small>
+                            </div>
                         </div>
                     </div>
+                    <div class="file-info" id="fileInfo" style="display: none;"></div>
                 </div>
-                <div class="file-info" id="fileInfo" style="display: none;"></div>
             </div>
 
             <!-- Configurações predefinidas -->
@@ -424,15 +499,6 @@
                         📚 Completa (11 módulos)
                     </button>
                 </div>
-            </div>
-
-            <!-- Link para o editor -->
-            <div class="editor-section">
-                <h4>⚙️ Criar Nova Configuração</h4>
-                <p>Use nosso editor visual para criar suas próprias configurações:</p>
-                <a href="config-editor.html" class="btn-editor" target="_blank">
-                    🛠️ Abrir Editor de Configurações
-                </a>
             </div>
         </div>
 
@@ -757,6 +823,33 @@
                 }
             };
             reader.readAsText(file);
+        }
+
+        function toggleCustomConfigSection() {
+            const content = document.getElementById('customConfigContent');
+            const toggleIcon = document.getElementById('customConfigToggle');
+            
+            if (content.style.display === 'none' || content.style.display === '') {
+                // Abrir
+                content.style.display = 'block';
+                content.classList.remove('hidden');
+                content.classList.add('visible');
+                toggleIcon.textContent = '▲';
+                toggleIcon.classList.add('rotated');
+            } else {
+                // Fechar
+                content.classList.remove('visible');
+                content.classList.add('hidden');
+                toggleIcon.textContent = '▼';
+                toggleIcon.classList.remove('rotated');
+                
+                // Aguarda a animação antes de esconder completamente
+                setTimeout(() => {
+                    if (content.classList.contains('hidden')) {
+                        content.style.display = 'none';
+                    }
+                }, 300);
+            }
         }
 
         function loadPredefinedConfig(configType) {
