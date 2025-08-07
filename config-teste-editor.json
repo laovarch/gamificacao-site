@@ -8,7 +8,7 @@
       "content": "Bem-vindo ao centro de comando! Daqui você coordena todo seu aprendizado.",
       "type": "checkpoint",
       "emoji": "🏠",
-      "position": { "x": 50, "y": 30 },
+      "position": { "x": 50, "y": 20 },
       "isAvailable": true,
       "isCompleted": false
     },
@@ -18,7 +18,7 @@
       "content": "Aprenda os fundamentos do design visual e teoria das cores.",
       "type": "content",
       "emoji": "🎨",
-      "position": { "x": 25, "y": 60 },
+      "position": { "x": 20, "y": 50 },
       "isAvailable": true,
       "isCompleted": false,
       "dependencies": ["centro"]
@@ -29,7 +29,7 @@
       "content": "Mergulhe no mundo da programação e desenvolvimento de aplicações.",
       "type": "content",
       "emoji": "💻",
-      "position": { "x": 75, "y": 60 },
+      "position": { "x": 80, "y": 50 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["centro"]
@@ -40,7 +40,7 @@
       "content": "Crie um projeto que combine design visual com programação avançada.",
       "type": "content",
       "emoji": "🚀",
-      "position": { "x": 50, "y": 85 },
+      "position": { "x": 50, "y": 80 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["design", "codigo"]

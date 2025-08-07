@@ -6,7 +6,7 @@
       "description": "Início da sua jornada na direção",
       "content": "Bem-vindo ao curso completo de direção! Aqui você aprenderá tudo sobre condução segura e responsável.",
       "type": "checkpoint",
-      "position": { "x": 50, "y": 50 },
+      "position": { "x": 50, "y": 15 },
       "isAvailable": true,
       "isCompleted": false
     },
@@ -15,7 +15,7 @@
       "description": "Código de Trânsito Brasileiro",
       "content": "Aprenda as leis e regulamentações do trânsito brasileiro. Base fundamental para qualquer condutor.",
       "type": "content",
-      "position": { "x": 30, "y": 20 },
+      "position": { "x": 25, "y": 35 },
       "isAvailable": true,
       "isCompleted": false,
       "dependencies": ["centro"]
@@ -25,7 +25,7 @@
       "description": "Placas e sinais de trânsito",
       "content": "Entenda todos os tipos de sinalização viária: placas, semáforos, marcações no asfalto e gestos.",
       "type": "content",
-      "position": { "x": 70, "y": 20 },
+      "position": { "x": 75, "y": 35 },
       "isAvailable": true,
       "isCompleted": false,
       "dependencies": ["centro"]
@@ -35,7 +35,7 @@
       "description": "Partes e funcionamento do automóvel",
       "content": "Aprenda sobre as partes do veículo, funcionamento básico e procedimentos de segurança.",
       "type": "content",
-      "position": { "x": 20, "y": 35 },
+      "position": { "x": 15, "y": 55 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["legislacao"]
@@ -45,7 +45,7 @@
       "description": "Técnicas de condução segura",
       "content": "Aprenda técnicas para dirigir com segurança, antecipando situações de risco.",
       "type": "content",
-      "position": { "x": 80, "y": 35 },
+      "position": { "x": 85, "y": 55 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["sinalizacao"]
@@ -55,7 +55,7 @@
       "description": "Atendimento de emergência",
       "content": "Aprenda procedimentos básicos de primeiros socorros em caso de acidentes.",
       "type": "content",
-      "position": { "x": 15, "y": 65 },
+      "position": { "x": 25, "y": 75 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["veiculo"]
@@ -65,7 +65,7 @@
       "description": "Direção ecológica e sustentável",
       "content": "Como dirigir respeitando o meio ambiente e contribuindo para um trânsito sustentável.",
       "type": "content",
-      "position": { "x": 85, "y": 65 },
+      "position": { "x": 75, "y": 75 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["direcao-defensiva"]
@@ -75,7 +75,7 @@
       "description": "Primeira aula prática",
       "content": "Sua primeira experiência ao volante com instrutor. Movimentos básicos e familiarização.",
       "type": "content",
-      "position": { "x": 35, "y": 80 },
+      "position": { "x": 50, "y": 85 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["primeiros-socorros", "meio-ambiente"]
@@ -85,7 +85,7 @@
       "description": "Aula prática avançada",
       "content": "Manobras e situações mais complexas. Preparação para o exame prático.",
       "type": "content",
-      "position": { "x": 65, "y": 80 },
+      "position": { "x": 35, "y": 95 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["pratica-1"]
@@ -95,7 +95,7 @@
       "description": "Teste seus conhecimentos",
       "content": "Simulado do exame teórico do DETRAN. Prepare-se para a prova oficial!",
       "type": "content",
-      "position": { "x": 40, "y": 95 },
+      "position": { "x": 65, "y": 95 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["pratica-2"]
@@ -105,7 +105,7 @@
       "description": "Prova final do curso",
       "content": "Demonstre tudo que aprendeu! Exame final teórico e prático.",
       "type": "content",
-      "position": { "x": 60, "y": 95 },
+      "position": { "x": 50, "y": 105 },
       "isAvailable": false,
       "isCompleted": false,
       "dependencies": ["simulado"]

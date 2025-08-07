@@ -1,0 +1,91 @@
+{
+  "title": "🎨 Layout Melhorado - Posicionamento Otimizado",
+  "subtitle": "Demonstração de posicionamento bem distribuído",
+  "modules": {
+    "inicio": {
+      "title": "Início",
+      "description": "Ponto de partida da jornada",
+      "content": "Bem-vindo! Este é o seu ponto de partida para uma experiência de aprendizado incrível.",
+      "type": "checkpoint",
+      "emoji": "🎯",
+      "position": { "x": 50, "y": 10 },
+      "isAvailable": true,
+      "isCompleted": false
+    },
+    "fundamentos": {
+      "title": "Fundamentos",
+      "description": "Base teórica essencial",
+      "content": "Aprenda os conceitos fundamentais que sustentarão todo seu aprendizado.",
+      "type": "content",
+      "emoji": "📚",
+      "position": { "x": 15, "y": 30 },
+      "isAvailable": true,
+      "isCompleted": false,
+      "dependencies": ["inicio"]
+    },
+    "pratica": {
+      "title": "Prática Básica",
+      "description": "Primeiros exercícios práticos",
+      "content": "Coloque em prática os conceitos aprendidos com exercícios guiados.",
+      "type": "content",
+      "emoji": "💻",
+      "position": { "x": 85, "y": 30 },
+      "isAvailable": true,
+      "isCompleted": false,
+      "dependencies": ["inicio"]
+    },
+    "avancado": {
+      "title": "Conceitos Avançados",
+      "description": "Aprofunde seu conhecimento",
+      "content": "Explore tópicos mais complexos e técnicas avançadas.",
+      "type": "content",
+      "emoji": "🚀",
+      "position": { "x": 30, "y": 55 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["fundamentos"]
+    },
+    "projeto": {
+      "title": "Projeto Prático",
+      "description": "Desenvolvimento hands-on",
+      "content": "Desenvolva um projeto real aplicando tudo que aprendeu.",
+      "type": "content",
+      "emoji": "🛠️",
+      "position": { "x": 70, "y": 55 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["pratica"]
+    },
+    "especializacao": {
+      "title": "Especialização",
+      "description": "Área de foco específica",
+      "content": "Escolha uma área específica para se especializar e aprofundar.",
+      "type": "content",
+      "emoji": "🎨",
+      "position": { "x": 50, "y": 75 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["avancado", "projeto"]
+    },
+    "certificacao": {
+      "title": "Certificação",
+      "description": "Validação final do conhecimento",
+      "content": "Demonstre seu domínio completo através de uma avaliação final.",
+      "type": "checkpoint",
+      "emoji": "🏆",
+      "position": { "x": 50, "y": 95 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["especializacao"]
+    }
+  },
+  "connections": [
+    { "from": "inicio", "to": "fundamentos" },
+    { "from": "inicio", "to": "pratica" },
+    { "from": "fundamentos", "to": "avancado" },
+    { "from": "pratica", "to": "projeto" },
+    { "from": "avancado", "to": "especializacao" },
+    { "from": "projeto", "to": "especializacao" },
+    { "from": "especializacao", "to": "certificacao" }
+  ]
+}

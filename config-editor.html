@@ -350,6 +350,10 @@
                         <strong>🚀 Teste Setas</strong><br>
                         <small>Configuração com emojis e setas</small>
                     </button>
+                    <button class="template-btn" onclick="loadOptimizedLayout()">
+                        <strong>🎨 Layout Otimizado</strong><br>
+                        <small>Posicionamento bem distribuído</small>
+                    </button>
                 </div>
 
                 <h4>➕ Adicionar Módulo</h4>
@@ -1430,6 +1434,24 @@
                 .catch(error => {
                     console.error('Erro ao carregar configuração de teste:', error);
                     showNotification('❌ Erro ao carregar configuração de teste. Verifique se o arquivo existe.');
+                });
+        }
+
+        // Função para carregar layout otimizado
+        function loadOptimizedLayout() {
+            fetch('config-layout-otimizado.json')
+                .then(response => response.json())
+                .then(config => {
+                    currentConfig = config;
+                    document.getElementById('configTitle').value = config.title;
+                    updateConnections();
+                    updateVisualEditor();
+                    updateJsonOutput();
+                    showNotification('🎨 Layout otimizado carregado! Posicionamento bem distribuído.');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar layout otimizado:', error);
+                    showNotification('❌ Erro ao carregar layout otimizado. Verifique se o arquivo existe.');
                 });
         }
 

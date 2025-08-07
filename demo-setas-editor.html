@@ -72,6 +72,7 @@
     <div class="controls">
         <a href="config-editor.html" class="btn editor">🛠️ Abrir Editor Visual</a>
         <button class="btn" onclick="loadSimpleConfig()">📚 Configuração Simples</button>
+        <button class="btn" onclick="loadOptimizedConfig()">🎨 Layout Otimizado</button>
         <button class="btn" onclick="loadComplexConfig()">🎯 Configuração Completa</button>
     </div>
 
@@ -112,6 +113,17 @@
                 });
         }
 
+        function loadOptimizedConfig() {
+            fetch('config-layout-otimizado.json')
+                .then(response => response.json())
+                .then(config => {
+                    loadConfiguration(config, 'layout-otimizado');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar configuração:', error);
+                });
+        }
+
         function loadComplexConfig() {
             fetch('config-completa.json')
                 .then(response => response.json())
@@ -123,8 +135,8 @@
                 });
         }
 
-        // Carrega configuração automaticamente (simples primeiro)
-        loadSimpleConfig();
+        // Carrega configuração automaticamente (otimizada primeiro)
+        loadOptimizedConfig();
     </script>
 </body>
 </html>
