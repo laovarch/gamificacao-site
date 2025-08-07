@@ -408,7 +408,7 @@
                     📥 Baixar JSON
                 </button>
                 
-                <button class="btn btn-primary" onclick="downloadHTML()">
+                <button class="btn btn-primary" onclick="downloadHTMLFromEditor()">
                     🌐 Baixar HTML Completo
                 </button>
                 
@@ -1036,13 +1036,30 @@
             URL.revokeObjectURL(url);
         }
 
-        function downloadHTML() {
+        function downloadHTMLFromEditor() {
+            console.log('downloadHTMLFromEditor called'); // Debug
+            
+            // Verifica se as funções necessárias estão disponíveis
+            if (typeof window.generateGameHTML !== 'function') {
+                alert('Erro: Função generateGameHTML não encontrada. Verifique se o html-generator.js foi carregado.');
+                return;
+            }
+            
+            if (typeof window.downloadHTML !== 'function') {
+                alert('Erro: Função downloadHTML não encontrada. Verifique se o html-generator.js foi carregado.');
+                return;
+            }
+            
             const title = currentConfig.title || 'Sistema de Gamificação';
             const filename = `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.html`;
             
+            console.log('Generating HTML for config:', currentConfig); // Debug
+            
             window.generateGameHTML(currentConfig).then(htmlContent => {
+                console.log('HTML generated successfully'); // Debug
                 window.downloadHTML(htmlContent, filename);
             }).catch(e => {
+                console.error('Erro ao gerar HTML:', e); // Debug
                 alert('Erro ao gerar HTML: ' + e.message);
             });
         }
