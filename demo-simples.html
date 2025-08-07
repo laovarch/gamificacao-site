@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gamificação - Demonstração</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .config-selector {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .config-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .config-btn {
+            padding: 15px 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .config-btn:hover {
+            background: linear-gradient(45deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+        }
+
+        .config-btn.active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: none;
+        }
+
+        .game-container.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .game-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .progress-section {
+            padding: 40px;
+        }
+
+        .progress-map {
+            position: relative;
+            min-height: 600px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .module {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .module:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .module.available {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            animation: pulse 2s infinite;
+        }
+
+        .module.locked {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .module.completed {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+
+        .module.current {
+            background: linear-gradient(45deg, #ffc107, #e0a800);
+            border-color: #fff;
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
+
+        .module.checkpoint {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            width: 100px;
+            height: 100px;
+            border: 4px solid #fff;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+            50% { box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4); }
+            100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        }
+
+        @keyframes glow {
+            from { 
+                box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+                border-color: rgba(255, 255, 255, 0.8);
+            }
+            to { 
+                box-shadow: 0 12px 35px rgba(255, 193, 7, 0.8);
+                border-color: rgba(255, 255, 255, 1);
+            }
+        }
+
+        .content-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            display: none;
+        }
+
+        .content-panel.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .content-description {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .content-body {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .module-tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .module-tooltip.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .config-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .module {
+                width: 60px;
+                height: 60px;
+                font-size: 1.2rem;
+            }
+            
+            .module.checkpoint {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Sistema de Gamificação</h1>
+            <p>Demonstração interativa do sistema de aprendizado progressivo</p>
+        </div>
+
+        <div class="config-selector">
+            <h3>📋 Selecione uma Configuração para Testar:</h3>
+            <div class="config-buttons">
+                <button class="config-btn" onclick="loadConfig('teste')">
+                    🧪 Teste (2 módulos)
+                </button>
+                <button class="config-btn" onclick="loadConfig('simples')">
+                    🚀 Simples (4 módulos)
+                </button>
+                <button class="config-btn" onclick="loadConfig('completa')">
+                    📚 Completa (11 módulos)
+                </button>
+            </div>
+        </div>
+
+        <div class="game-container" id="gameContainer">
+            <div class="game-header">
+                <h2 class="game-title" id="gameTitle">Sistema de Gamificação</h2>
+                <div class="game-subtitle" id="gameSubtitle">Carregando...</div>
+            </div>
+
+            <div class="status-bar" id="statusBar">
+                Preparando sistema...
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-map" id="progressMap"></div>
+
+                <div class="content-panel" id="contentPanel">
+                    <div class="content-title" id="contentTitle"></div>
+                    <div class="content-description" id="contentDescription"></div>
+                    <div class="content-body" id="contentBody"></div>
+                    <div class="action-buttons" id="actionButtons"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-tooltip" id="tooltip"></div>
+
+    <script>
+        // Configurações embutidas
+        const configs = {
+            teste: {
+                title: "🧪 Configuração de Teste",
+                modules: {
+                    "centro": {
+                        title: "🎯 Centro",
+                        description: "Ponto central do sistema",
+                        content: "Este é o centro do seu aprendizado. A partir daqui você pode acessar todos os módulos conectados.",
+                        type: "checkpoint",
+                        position: { x: 50, y: 50 },
+                        isAvailable: true,
+                        isCompleted: false
+                    },
+                    "modulo1": {
+                        title: "📚 Módulo 1",
+                        description: "Primeiro módulo de conteúdo",
+                        content: "Conteúdo do primeiro módulo. Este é um exemplo de como o sistema funciona com dependências entre módulos.",
+                        type: "content",
+                        position: { x: 20, y: 30 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "modulo2": {
+                        title: "📖 Módulo 2", 
+                        description: "Segundo módulo - desbloqueado após módulo 1",
+                        content: "Este módulo só fica disponível depois que você completar o Módulo 1. Demonstra o sistema de dependências.",
+                        type: "content",
+                        position: { x: 80, y: 70 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["modulo1"]
+                    }
+                },
+                connections: [
+                    { from: "centro", to: "modulo1" },
+                    { from: "modulo1", to: "modulo2" }
+                ]
+            },
+
+            simples: {
+                title: "🚀 Configuração Simples",
+                modules: {
+                    "centro": {
+                        title: "🎯 Centro de Aprendizado",
+                        description: "Seu ponto de partida",
+                        content: "Bem-vindo ao sistema de aprendizado! A partir deste centro você pode acessar os módulos do curso.",
+                        type: "checkpoint",
+                        position: { x: 50, y: 50 },
+                        isAvailable: true,
+                        isCompleted: false
+                    },
+                    "introducao": {
+                        title: "📖 Introdução",
+                        description: "Conceitos básicos e fundamentais",
+                        content: "Aprenda os fundamentos essenciais que servirão de base para todo o curso. Este módulo é obrigatório para avançar.",
+                        type: "content",
+                        position: { x: 25, y: 25 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "pratica": {
+                        title: "⚡ Prática",
+                        description: "Exercícios práticos e aplicação",
+                        content: "Coloque em prática o que aprendeu na introdução. Exercícios hands-on para solidificar o conhecimento.",
+                        type: "content",
+                        position: { x: 75, y: 25 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["introducao"]
+                    },
+                    "avancado": {
+                        title: "🚀 Avançado",
+                        description: "Conceitos avançados e especializados",
+                        content: "Tópicos mais complexos e especializados. Para estudantes que dominaram os conceitos básicos e práticos.",
+                        type: "content",
+                        position: { x: 50, y: 75 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["pratica"]
+                    }
+                },
+                connections: [
+                    { from: "centro", to: "introducao" },
+                    { from: "introducao", to: "pratica" },
+                    { from: "pratica", to: "avancado" }
+                ]
+            },
+
+            completa: {
+                title: "📚 Curso Completo de Direção",
+                modules: {
+                    "centro": {
+                        title: "🎯 Centro de Aprendizado",
+                        description: "Início da sua jornada na direção",
+                        content: "Bem-vindo ao curso completo de direção! Aqui você aprenderá tudo sobre condução segura e responsável.",
+                        type: "checkpoint",
+                        position: { x: 50, y: 50 },
+                        isAvailable: true,
+                        isCompleted: false
+                    },
+                    "legislacao": {
+                        title: "📚 Legislação",
+                        description: "Código de Trânsito Brasileiro",
+                        content: "Aprenda as leis e regulamentações do trânsito brasileiro. Base fundamental para qualquer condutor.",
+                        type: "content",
+                        position: { x: 30, y: 20 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "sinalizacao": {
+                        title: "🚦 Sinalização",
+                        description: "Placas e sinais de trânsito",
+                        content: "Entenda todos os tipos de sinalização viária: placas, semáforos, marcações no asfalto e gestos.",
+                        type: "content",
+                        position: { x: 70, y: 20 },
+                        isAvailable: true,
+                        isCompleted: false,
+                        dependencies: ["centro"]
+                    },
+                    "veiculo": {
+                        title: "🚗 Conhecendo o Veículo",
+                        description: "Partes e funcionamento do automóvel",
+                        content: "Aprenda sobre as partes do veículo, funcionamento básico e procedimentos de segurança.",
+                        type: "content",
+                        position: { x: 20, y: 35 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["legislacao"]
+                    },
+                    "direcao-defensiva": {
+                        title: "🛡️ Direção Defensiva",
+                        description: "Técnicas de condução segura",
+                        content: "Aprenda técnicas para dirigir com segurança, antecipando situações de risco.",
+                        type: "content",
+                        position: { x: 80, y: 35 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["sinalizacao"]
+                    },
+                    "primeiros-socorros": {
+                        title: "🏥 Primeiros Socorros",
+                        description: "Atendimento de emergência",
+                        content: "Aprenda procedimentos básicos de primeiros socorros em caso de acidentes.",
+                        type: "content",
+                        position: { x: 15, y: 65 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["veiculo"]
+                    },
+                    "meio-ambiente": {
+                        title: "🌱 Meio Ambiente",
+                        description: "Direção ecológica e sustentável",
+                        content: "Como dirigir respeitando o meio ambiente e contribuindo para um trânsito sustentável.",
+                        type: "content",
+                        position: { x: 85, y: 65 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["direcao-defensiva"]
+                    },
+                    "pratica-1": {
+                        title: "🎮 Prática 1",
+                        description: "Primeira aula prática",
+                        content: "Sua primeira experiência ao volante com instrutor. Movimentos básicos e familiarização.",
+                        type: "content",
+                        position: { x: 35, y: 80 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["primeiros-socorros", "meio-ambiente"]
+                    },
+                    "pratica-2": {
+                        title: "🚙 Prática 2",
+                        description: "Aula prática avançada",
+                        content: "Manobras e situações mais complexas. Preparação para o exame prático.",
+                        type: "content",
+                        position: { x: 65, y: 80 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["pratica-1"]
+                    },
+                    "simulado": {
+                        title: "📝 Simulado",
+                        description: "Teste seus conhecimentos",
+                        content: "Simulado do exame teórico do DETRAN. Prepare-se para a prova oficial!",
+                        type: "content",
+                        position: { x: 40, y: 95 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["pratica-2"]
+                    },
+                    "exame": {
+                        title: "🏆 Exame Final",
+                        description: "Prova final do curso",
+                        content: "Demonstre tudo que aprendeu! Exame final teórico e prático.",
+                        type: "content",
+                        position: { x: 60, y: 95 },
+                        isAvailable: false,
+                        isCompleted: false,
+                        dependencies: ["simulado"]
+                    }
+                },
+                connections: [
+                    { from: "centro", to: "legislacao" },
+                    { from: "centro", to: "sinalizacao" },
+                    { from: "legislacao", to: "veiculo" },
+                    { from: "sinalizacao", to: "direcao-defensiva" },
+                    { from: "veiculo", to: "primeiros-socorros" },
+                    { from: "direcao-defensiva", to: "meio-ambiente" },
+                    { from: "primeiros-socorros", to: "pratica-1" },
+                    { from: "meio-ambiente", to: "pratica-1" },
+                    { from: "pratica-1", to: "pratica-2" },
+                    { from: "pratica-2", to: "simulado" },
+                    { from: "pratica-2", to: "exame" },
+                    { from: "simulado", to: "exame" }
+                ]
+            }
+        };
+
+        let currentConfig = null;
+        let currentModule = null;
+
+        function loadConfig(configType) {
+            currentConfig = configs[configType];
+            
+            // Atualiza botões
+            document.querySelectorAll('.config-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Atualiza interface
+            document.getElementById('gameTitle').textContent = currentConfig.title;
+            document.getElementById('gameSubtitle').textContent = 
+                `${Object.keys(currentConfig.modules).length} módulos disponíveis`;
+            
+            // Mostra container do jogo
+            document.getElementById('gameContainer').classList.add('active');
+            
+            // Gera mapa
+            generateProgressMap();
+            updateStatusBar();
+            
+            // Fecha painel de conteúdo se estiver aberto
+            closeContentPanel();
+        }
+
+        function generateProgressMap() {
+            const mapContainer = document.getElementById('progressMap');
+            mapContainer.innerHTML = '';
+
+            // Cria SVG para as linhas
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.style.position = 'absolute';
+            svg.style.top = '0';
+            svg.style.left = '0';
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+            svg.style.zIndex = '1';
+            svg.style.pointerEvents = 'none';
+            mapContainer.appendChild(svg);
+
+            // Gera módulos
+            Object.entries(currentConfig.modules).forEach(([id, module]) => {
+                const moduleElement = createModuleElement(id, module);
+                mapContainer.appendChild(moduleElement);
+            });
+
+            // Cria conexões como linhas SVG
+            if (currentConfig.connections) {
+                currentConfig.connections.forEach(connection => {
+                    createSVGLine(svg, connection.from, connection.to);
+                });
+            }
+        }
+
+        function createSVGLine(svg, fromId, toId) {
+            const fromModule = currentConfig.modules[fromId];
+            const toModule = currentConfig.modules[toId];
+            
+            if (!fromModule || !toModule) return null;
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', `${fromModule.position.x}%`);
+            line.setAttribute('y1', `${fromModule.position.y}%`);
+            line.setAttribute('x2', `${toModule.position.x}%`);
+            line.setAttribute('y2', `${toModule.position.y}%`);
+            line.setAttribute('stroke', '#667eea');
+            line.setAttribute('stroke-width', '4');
+            line.setAttribute('stroke-linecap', 'round');
+            line.setAttribute('opacity', '0.8');
+
+            svg.appendChild(line);
+            return line;
+        }
+
+        function createModuleElement(id, module) {
+            const element = document.createElement('div');
+            element.className = 'module';
+            element.id = `module-${id}`;
+            element.style.left = `${module.position.x}%`;
+            element.style.top = `${module.position.y}%`;
+            element.style.transform = 'translate(-50%, -50%)';
+            
+            // Determina o estado do módulo
+            let state = 'locked';
+            if (module.isCompleted) {
+                state = 'completed';
+            } else if (module.isAvailable) {
+                state = 'available';
+            }
+            
+            if (module.type === 'checkpoint') {
+                element.classList.add('checkpoint');
+            }
+            
+            element.classList.add(state);
+            
+            // Emoji baseado no tipo e estado
+            let emoji = '📚';
+            if (module.type === 'checkpoint') {
+                emoji = '🎯';
+            } else if (state === 'completed') {
+                emoji = '✅';
+            } else if (state === 'locked') {
+                emoji = '🔒';
+            }
+            
+            element.textContent = emoji;
+            
+            // Event listeners
+            if (state !== 'locked') {
+                element.addEventListener('click', () => selectModule(id));
+            }
+            
+            element.addEventListener('mouseenter', (e) => showTooltip(e, module));
+            element.addEventListener('mouseleave', hideTooltip);
+            
+            return element;
+        }
+
+        function selectModule(moduleId) {
+            currentModule = moduleId;
+            const module = currentConfig.modules[moduleId];
+            
+            // Atualiza painel de conteúdo
+            document.getElementById('contentTitle').textContent = module.title;
+            document.getElementById('contentDescription').textContent = module.description;
+            document.getElementById('contentBody').textContent = module.content;
+            
+            // Botões de ação
+            const buttonsContainer = document.getElementById('actionButtons');
+            buttonsContainer.innerHTML = '';
+            
+            if (!module.isCompleted && module.type !== 'checkpoint') {
+                const completeBtn = document.createElement('button');
+                completeBtn.className = 'btn btn-success';
+                completeBtn.innerHTML = '✅ Marcar como Concluído';
+                completeBtn.onclick = () => completeModule(moduleId);
+                buttonsContainer.appendChild(completeBtn);
+            }
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'btn btn-secondary';
+            closeBtn.innerHTML = '✖️ Fechar';
+            closeBtn.onclick = closeContentPanel;
+            buttonsContainer.appendChild(closeBtn);
+            
+            // Mostra painel
+            document.getElementById('contentPanel').classList.add('active');
+            
+            // Atualiza estado visual
+            document.querySelectorAll('.module').forEach(el => el.classList.remove('current'));
+            document.getElementById(`module-${moduleId}`).classList.add('current');
+        }
+
+        function completeModule(moduleId) {
+            const module = currentConfig.modules[moduleId];
+            module.isCompleted = true;
+            
+            // Desbloqueia módulos dependentes
+            Object.entries(currentConfig.modules).forEach(([id, mod]) => {
+                if (mod.dependencies && mod.dependencies.includes(moduleId)) {
+                    const allDependenciesMet = mod.dependencies.every(depId => 
+                        currentConfig.modules[depId].isCompleted || currentConfig.modules[depId].type === 'checkpoint'
+                    );
+                    if (allDependenciesMet) {
+                        mod.isAvailable = true;
+                    }
+                }
+            });
+            
+            // Atualiza interface
+            generateProgressMap();
+            updateStatusBar();
+            closeContentPanel();
+            
+            // Notificação
+            showNotification(`🎉 ${module.title} concluído!`);
+        }
+
+        function closeContentPanel() {
+            document.getElementById('contentPanel').classList.remove('active');
+            document.querySelectorAll('.module').forEach(el => el.classList.remove('current'));
+            currentModule = null;
+        }
+
+        function showTooltip(event, module) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.textContent = `${module.title} - ${module.description}`;
+            tooltip.style.left = event.pageX + 10 + 'px';
+            tooltip.style.top = event.pageY - 30 + 'px';
+            tooltip.classList.add('show');
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('show');
+        }
+
+        function updateStatusBar() {
+            if (!currentConfig) return;
+            
+            const modules = Object.values(currentConfig.modules);
+            const contentModules = modules.filter(m => m.type !== 'checkpoint');
+            const completed = contentModules.filter(m => m.isCompleted).length;
+            const available = contentModules.filter(m => m.isAvailable && !m.isCompleted).length;
+            
+            const statusText = `📊 Progresso: ${completed}/${contentModules.length} concluídos • ${available} disponíveis`;
+            document.getElementById('statusBar').textContent = statusText;
+        }
+
+        function showNotification(message) {
+            // Cria notificação temporária
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(45deg, #28a745, #20c997);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Atalhos de teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeContentPanel();
+            }
+        });
+
+        // Adiciona estilos de animação
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
