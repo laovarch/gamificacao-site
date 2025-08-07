@@ -28,16 +28,46 @@ window.generateGameHTML = async function(config, options = {}) {
         scriptCode = await resp.text();
         // Garante que loadConfiguration e selectModule fiquem globais
         scriptCode += '\nwindow.loadConfiguration = loadConfiguration;\nwindow.selectModule = selectModule;\n';
-        // Salva progresso no localStorage ao concluir módulo e ao carregar configuração
+        // Salva progresso no localStorage ao concluir módulo e ao carregar configuração (com chave única)
         scriptCode += '\n(function(){' +
           'var _originalLoad=window.loadConfiguration;' +
-          'window.loadConfiguration=function(config,source){_originalLoad(config,source);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};' +
-          'if(window.completeModule){var _originalComplete=window.completeModule;window.completeModule=function(moduleId){_originalComplete(moduleId);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};}' +
+          'window.loadConfiguration=function(config,source){' +
+            '_originalLoad(config,source);' +
+            'try{' +
+              'var storageKey = "gamificacao_progresso_" + (config.title || "default").replace(/[^a-zA-Z0-9]/g, "_");' +
+              'localStorage.setItem(storageKey,JSON.stringify(window.currentConfig));' +
+            '}catch(e){}' +
+          '};' +
+          'if(window.completeModule){' +
+            'var _originalComplete=window.completeModule;' +
+            'window.completeModule=function(moduleId){' +
+              '_originalComplete(moduleId);' +
+              'try{' +
+                'var storageKey = "gamificacao_progresso_" + (window.currentConfig.title || "default").replace(/[^a-zA-Z0-9]/g, "_");' +
+                'localStorage.setItem(storageKey,JSON.stringify(window.currentConfig));' +
+              '}catch(e){}' +
+            '};' +
+          '}' +
         '})();\n';
-        // Ao abrir, restaura progresso salvo se existir e carrega configuração
+        // Ao abrir, carrega a configuração injetada e depois restaura progresso se houver
         scriptCode += '\nwindow.addEventListener(\'DOMContentLoaded\',function(){' +
-          'try{var salvo=localStorage.getItem(\'gamificacao_progresso\');if(salvo){var savedConfig=JSON.parse(salvo);if(savedConfig){window.currentConfig=savedConfig;}}}catch(e){}' +
-          'if(window.currentConfig){setTimeout(function(){loadConfiguration(window.currentConfig,\'personalizada\');},100);}' +
+          'var injectedConfig = window.currentConfig;' + // Salva a config injetada
+          'var savedProgress = null;' +
+          'if(injectedConfig){' +
+            'try{' +
+              'var storageKey = "gamificacao_progresso_" + (injectedConfig.title || "default").replace(/[^a-zA-Z0-9]/g, "_");' +
+              'var salvo=localStorage.getItem(storageKey);' +
+              'if(salvo){savedProgress=JSON.parse(salvo);}' +
+            '}catch(e){}' +
+            'if(savedProgress && savedProgress.title === injectedConfig.title){' +
+              'console.log("Restaurando progresso salvo para: " + injectedConfig.title);' +
+              'window.currentConfig = savedProgress;' +
+            '}else{' +
+              'console.log("Usando configuração injetada: " + injectedConfig.title);' +
+              'window.currentConfig = injectedConfig;' +
+            '}' +
+            'setTimeout(function(){loadConfiguration(window.currentConfig,\'personalizada\');},100);' +
+          '}' +
         '});\n';
         // Adiciona verificações de segurança para elementos
         scriptCode += '\n// Patch de segurança para verificar elementos antes de usar\n';
