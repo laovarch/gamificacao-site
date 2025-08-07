@@ -486,28 +486,7 @@
     </div>
 </section>
 <script>
-// Torna a área de upload reabrível/fechável
-function toggleCustomConfigSection() {
-    const content = document.getElementById('customConfigContent');
-    const toggleIcon = document.getElementById('customConfigToggle');
-    if (content.classList.contains('visible')) {
-        content.classList.remove('visible');
-        content.classList.add('hidden');
-        toggleIcon.textContent = '▼';
-        toggleIcon.classList.remove('rotated');
-        setTimeout(() => {
-            if (content.classList.contains('hidden')) {
-                content.style.display = 'none';
-            }
-        }, 300);
-    } else {
-        content.style.display = 'block';
-        content.classList.remove('hidden');
-        content.classList.add('visible');
-        toggleIcon.textContent = '▲';
-        toggleIcon.classList.add('rotated');
-    }
-}
+// Funções de UI de upload e carregamento de configuração personalizada agora estão em public/config-personalizada.js
 </script>
 
         <div class="game-container" id="gameContainer">
@@ -539,8 +518,7 @@ function toggleCustomConfigSection() {
     <div class="module-tooltip" id="tooltip"></div>
 
     <script src="public/gamificacao-core.js"></script>
-    <script src="public/upload-manager.js"></script>
-    <script src="public/predefined-configs.js"></script>
+    <script src="public/config-personalizada.js"></script>
     <script>
     // Função para baixar HTML customizado (agora copia o JS do arquivo externo)
     document.getElementById('downloadHtmlBtn').addEventListener('click', async function() {
@@ -585,14 +563,7 @@ function toggleCustomConfigSection() {
         if (configJson) {
             injectConfig = `window.currentConfig = JSON.parse(String.raw\`${configJson.replace(/`/g, '\u0060')}\`);`;
         }
-        // Adiciona script para carregar a config automaticamente
-        let autoLoadScript = '';
-        if (configJson) {
-            autoLoadScript = `\nwindow.addEventListener('DOMContentLoaded', function() {\n  if (window.currentConfig) {\n    loadConfiguration(window.currentConfig, 'personalizada');\n  }\n});`;
-        }
         // Monta HTML exportado
-        // Monta HTML exportado sem template literal para o JS
-        // Monta o HTML exportado de forma segura, sem quebras de linha dentro do <script>
         let html = '';
         html += '<!DOCTYPE html>\n';
         html += '<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n<title>' + title + '</title>\n' + style + '\n</head>\n<body>\n';
@@ -601,7 +572,6 @@ function toggleCustomConfigSection() {
         html += '<script>';
         if (injectConfig) html += injectConfig + '\n';
         if (scriptCode) html += scriptCode + '\n';
-        if (autoLoadScript) html += autoLoadScript + '\n';
         html += '<' + '/script>\n';
         html += '</body>\n</html>';
         // Cria blob e baixa
