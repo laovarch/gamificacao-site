@@ -1,0 +1,38 @@
+{
+  "title": "🧪 Configuração de Teste",
+  "modules": {
+    "centro": {
+      "title": "🎯 Centro",
+      "description": "Ponto central do sistema",
+      "content": "Este é o centro do seu aprendizado. A partir daqui você pode acessar todos os módulos conectados.",
+      "type": "checkpoint",
+      "position": { "x": 50, "y": 50 },
+      "isAvailable": true,
+      "isCompleted": false
+    },
+    "modulo1": {
+      "title": "📚 Módulo 1",
+      "description": "Primeiro módulo de conteúdo",
+      "content": "Conteúdo do primeiro módulo. Este é um exemplo de como o sistema funciona com dependências entre módulos.",
+      "type": "content",
+      "position": { "x": 20, "y": 30 },
+      "isAvailable": true,
+      "isCompleted": false,
+      "dependencies": ["centro"]
+    },
+    "modulo2": {
+      "title": "📖 Módulo 2",
+      "description": "Segundo módulo - desbloqueado após módulo 1",
+      "content": "Este módulo só fica disponível depois que você completar o Módulo 1. Demonstra o sistema de dependências.",
+      "type": "content",
+      "position": { "x": 80, "y": 70 },
+      "isAvailable": false,
+      "isCompleted": false,
+      "dependencies": ["modulo1"]
+    }
+  },
+  "connections": [
+    { "from": "centro", "to": "modulo1" },
+    { "from": "modulo1", "to": "modulo2" }
+  ]
+}
