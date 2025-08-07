@@ -34,8 +34,24 @@ window.generateGameHTML = async function(config, options = {}) {
           'window.loadConfiguration=function(config,source){_originalLoad(config,source);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};' +
           'if(window.completeModule){var _originalComplete=window.completeModule;window.completeModule=function(moduleId){_originalComplete(moduleId);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};}' +
         '})();\n';
-        // Ao abrir, restaura progresso salvo se existir
-        scriptCode += '\nwindow.addEventListener(\'DOMContentLoaded\',function(){try{var salvo=localStorage.getItem(\'gamificacao_progresso\');if(salvo){window.currentConfig=JSON.parse(salvo);}}catch(e){}if(window.currentConfig){loadConfiguration(window.currentConfig,\'personalizada\');}});\n';
+        // Ao abrir, restaura progresso salvo se existir e carrega configuração
+        scriptCode += '\nwindow.addEventListener(\'DOMContentLoaded\',function(){' +
+          'try{var salvo=localStorage.getItem(\'gamificacao_progresso\');if(salvo){var savedConfig=JSON.parse(salvo);if(savedConfig){window.currentConfig=savedConfig;}}}catch(e){}' +
+          'if(window.currentConfig){setTimeout(function(){loadConfiguration(window.currentConfig,\'personalizada\');},100);}' +
+        '});\n';
+        // Adiciona verificações de segurança para elementos
+        scriptCode += '\n// Patch de segurança para verificar elementos antes de usar\n';
+        scriptCode += 'var originalLoadConfiguration = loadConfiguration;\n';
+        scriptCode += 'loadConfiguration = function(config, source) {\n';
+        scriptCode += '  var gameTitle = document.getElementById("gameTitle");\n';
+        scriptCode += '  var gameSubtitle = document.getElementById("gameSubtitle");\n';
+        scriptCode += '  var gameContainer = document.getElementById("gameContainer");\n';
+        scriptCode += '  if (!gameTitle || !gameSubtitle || !gameContainer) {\n';
+        scriptCode += '    console.error("Elementos obrigatórios não encontrados no DOM");\n';
+        scriptCode += '    return;\n';
+        scriptCode += '  }\n';
+        scriptCode += '  originalLoadConfiguration(config, source);\n';
+        scriptCode += '};\n';
         // Adiciona o tooltip div no HTML exportado se não existir
         scriptCode += '\n// Garante que o tooltip existe\nif (!document.getElementById("tooltip")) { const tooltip = document.createElement("div"); tooltip.id = "tooltip"; tooltip.className = "module-tooltip"; document.body.appendChild(tooltip); }\n';
     } catch (e) {
@@ -53,11 +69,11 @@ window.generateGameHTML = async function(config, options = {}) {
 
     // Gera o HTML do game container
     let gameContainerHTML = '';
-    gameContainerHTML += '    <div class="game-container active">\n';
+    gameContainerHTML += '    <div class="game-container active" id="gameContainer">\n';
     gameContainerHTML += '        <div class="game-header">\n';
     gameContainerHTML += '            <div>\n';
-    gameContainerHTML += '                <h2 class="game-title">' + gameTitle + '</h2>\n';
-    gameContainerHTML += '                <div class="game-subtitle">' + gameSubtitle + '</div>\n';
+    gameContainerHTML += '                <h2 class="game-title" id="gameTitle">' + gameTitle + '</h2>\n';
+    gameContainerHTML += '                <div class="game-subtitle" id="gameSubtitle">' + gameSubtitle + '</div>\n';
     gameContainerHTML += '            </div>\n';
     if (includeDownloadButton) {
         gameContainerHTML += '            <button class="header-button" id="downloadHtmlBtn" type="button" style="position:static; margin-left: 16px;">⬇️ Baixar HTML</button>\n';
