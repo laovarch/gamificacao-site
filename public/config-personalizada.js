@@ -13,6 +13,20 @@ window.handleCustomConfigUpload = function(file, callback) {
       if (typeof window.loadConfiguration === 'function') {
         window.loadConfiguration(window.currentConfig, 'personalizada');
       }
+      // Fecha a área de upload
+      const content = document.getElementById('customConfigContent');
+      const toggleIcon = document.getElementById('customConfigToggle');
+      if (content && toggleIcon) {
+        content.classList.remove('visible');
+        content.classList.add('hidden');
+        toggleIcon.textContent = '▼';
+        toggleIcon.classList.remove('rotated');
+        setTimeout(() => {
+          if (content.classList.contains('hidden')) {
+            content.style.display = 'none';
+          }
+        }, 300);
+      }
       if (typeof callback === 'function') callback(json);
     } catch (err) {
       alert('Arquivo JSON inválido!');
@@ -23,6 +37,33 @@ window.handleCustomConfigUpload = function(file, callback) {
 
 // UI de upload (pode ser customizada conforme necessário)
 document.addEventListener('DOMContentLoaded', function() {
+  // Permite reabrir a área de upload ao clicar no cabeçalho
+  const header = document.querySelector('.collapsible-header');
+  if (header) {
+    header.addEventListener('click', function() {
+      const content = document.getElementById('customConfigContent');
+      const toggleIcon = document.getElementById('customConfigToggle');
+      if (content && toggleIcon) {
+        if (content.classList.contains('visible')) {
+          content.classList.remove('visible');
+          content.classList.add('hidden');
+          toggleIcon.textContent = '▼';
+          toggleIcon.classList.remove('rotated');
+          setTimeout(() => {
+            if (content.classList.contains('hidden')) {
+              content.style.display = 'none';
+            }
+          }, 300);
+        } else {
+          content.style.display = 'block';
+          content.classList.remove('hidden');
+          content.classList.add('visible');
+          toggleIcon.textContent = '▲';
+          toggleIcon.classList.add('rotated');
+        }
+      }
+    });
+  }
   const uploadArea = document.getElementById('uploadArea');
   const fileInput = document.getElementById('fileInput');
   const fileInfo = document.getElementById('fileInfo');
