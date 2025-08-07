@@ -461,47 +461,54 @@
             </div>
         </div>
 
-        <div class="config-selector">
-            <h3>📋 Configurações do Sistema:</h3>
-            
-            <!-- Upload de arquivo JSON -->
-            <div class="upload-section">
-                <h4 class="collapsible-header" onclick="toggleCustomConfigSection()">
-                    📁 Carregar Configuração Personalizada 
-                    <span class="toggle-icon" id="customConfigToggle">▼</span>
-                </h4>
-                <div class="collapsible-content" id="customConfigContent" style="display: none;">
-                    <div class="upload-area" id="uploadArea">
-                        <input type="file" id="fileInput" accept=".json" style="display: none;">
-                        <div class="upload-content">
-                            <div class="upload-icon">📁</div>
-                            <div class="upload-text">
-                                <strong>Clique aqui ou arraste um arquivo JSON</strong>
-                                <br>
-                                <small>Arquivo de configuração do sistema de gamificação</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="file-info" id="fileInfo" style="display: none;"></div>
-                </div>
-            </div>
 
-            <!-- Configurações predefinidas -->
-            <div class="predefined-section">
-                <h4>🎮 Configurações Predefinidas</h4>
-                <div class="config-buttons">
-                    <button class="config-btn" onclick="loadPredefinedConfig('teste')">
-                        🧪 Teste (2 módulos)
-                    </button>
-                    <button class="config-btn" onclick="loadPredefinedConfig('simples')">
-                        🚀 Simples (4 módulos)
-                    </button>
-                    <button class="config-btn" onclick="loadPredefinedConfig('completa')">
-                        📚 Completa (11 módulos)
-                    </button>
+<section class="config-selector" style="padding: 18px 0 0 0; background: #f8f9ff; box-shadow: 0 4px 18px rgba(102,126,234,0.08); border-radius: 14px; margin-bottom: 32px;">
+    <div class="upload-section" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+        <div class="collapsible-header" onclick="toggleCustomConfigSection()" style="cursor:pointer; display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 600; color: #4b3c7a; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0; padding: 14px 22px 14px 18px; letter-spacing: 0.01em; box-shadow: 0 2px 8px rgba(102,126,234,0.07);">
+            <span style="font-size: 1.3em; color: #fff;">📁</span>
+            <span style="color: #fff;">Carregar Configuração Personalizada</span>
+            <span class="toggle-icon" id="customConfigToggle" style="margin-left:auto; color:#fff; font-size:1.1em;">▲</span>
+        </div>
+        <div class="collapsible-content visible" id="customConfigContent" style="display: block; margin-bottom: 0; background: #fff; border-radius: 0 0 10px 10px; border-top: 1px solid #e3e6f3;">
+            <div class="upload-area" id="uploadArea" style="background: #f8f9ff; border: 2.5px dashed #667eea;">
+                <input type="file" id="fileInput" accept=".json" style="display: none;">
+                <div class="upload-content">
+                    <div class="upload-icon" style="color: #667eea;">📁</div>
+                    <div class="upload-text">
+                        <strong style="color: #4b3c7a;">Clique aqui ou arraste um arquivo JSON</strong>
+                        <br>
+                        <small style="color: #555;">Arquivo de configuração do sistema de gamificação</small>
+                    </div>
                 </div>
             </div>
+            <div class="file-info" id="fileInfo" style="display: none;"></div>
         </div>
+    </div>
+</section>
+<script>
+// Torna a área de upload reabrível/fechável
+function toggleCustomConfigSection() {
+    const content = document.getElementById('customConfigContent');
+    const toggleIcon = document.getElementById('customConfigToggle');
+    if (content.classList.contains('visible')) {
+        content.classList.remove('visible');
+        content.classList.add('hidden');
+        toggleIcon.textContent = '▼';
+        toggleIcon.classList.remove('rotated');
+        setTimeout(() => {
+            if (content.classList.contains('hidden')) {
+                content.style.display = 'none';
+            }
+        }, 300);
+    } else {
+        content.style.display = 'block';
+        content.classList.remove('hidden');
+        content.classList.add('visible');
+        toggleIcon.textContent = '▲';
+        toggleIcon.classList.add('rotated');
+    }
+}
+</script>
 
         <div class="game-container" id="gameContainer">
             <div class="game-header" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
@@ -546,6 +553,11 @@
         // Pega apenas o HTML do gameContainer (forçando classe active para garantir exibição)
         const gameContainerEl = document.getElementById('gameContainer').cloneNode(true);
         gameContainerEl.classList.add('active');
+        // Remove a classe 'active' de todos os módulos e painéis para garantir interatividade no exportado
+        const modules = gameContainerEl.querySelectorAll('.module');
+        modules.forEach(m => m.classList.remove('active'));
+        const panels = gameContainerEl.querySelectorAll('.content-panel');
+        panels.forEach(p => p.classList.remove('active'));
         // Remove o botão de download do HTML baixado
         const downloadBtn = gameContainerEl.querySelector('#downloadHtmlBtn');
         if (downloadBtn) downloadBtn.remove();

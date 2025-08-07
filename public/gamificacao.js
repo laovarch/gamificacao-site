@@ -271,12 +271,10 @@ function handleFileUpload(file) {
     reader.onload = function(e) {
         try {
             const config = JSON.parse(e.target.result);
-            
             // Validação básica da estrutura
             if (!config.title || !config.modules) {
                 throw new Error('Estrutura de configuração inválida');
             }
-
             // Mostra informações do arquivo
             const fileInfo = document.getElementById('fileInfo');
             fileInfo.innerHTML = `
@@ -286,10 +284,20 @@ function handleFileUpload(file) {
                 🎯 ${config.title}
             `;
             fileInfo.style.display = 'block';
-
             // Carrega a configuração
             loadConfiguration(config, 'personalizada');
-            
+            // Recolhe a sessão após upload bem-sucedido
+            const content = document.getElementById('customConfigContent');
+            const toggleIcon = document.getElementById('customConfigToggle');
+            content.classList.remove('visible');
+            content.classList.add('hidden');
+            toggleIcon.textContent = '▼';
+            toggleIcon.classList.remove('rotated');
+            setTimeout(() => {
+                if (content.classList.contains('hidden')) {
+                    content.style.display = 'none';
+                }
+            }, 300);
         } catch (error) {
             showNotification('❌ Erro ao processar arquivo JSON: ' + error.message);
             console.error('Erro no JSON:', error);
