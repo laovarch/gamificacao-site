@@ -1039,23 +1039,98 @@
             const title = currentConfig.title || 'Sistema de Gamificação';
             const filename = `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}.html`;
             
-            const htmlContent = generateHTMLTemplate(currentConfig);
-            
-            const blob = new Blob([htmlContent], {
-                type: 'text/html;charset=utf-8'
+            generateHTMLTemplate(currentConfig).then(htmlContent => {
+                const blob = new Blob([htmlContent], {
+                    type: 'text/html;charset=utf-8'
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            }).catch(e => {
+                alert('Erro ao gerar HTML: ' + e.message);
             });
-            
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
         }
 
-        function generateHTMLTemplate(config) {
-            // Função simplificada para gerar HTML template
-            return "<!DOCTYPE html><html><head><title>" + config.title + "</title></head><body><h1>Sistema funcionando</h1></body></html>";
+        async function generateHTMLTemplate(config) {
+            // Busca os estilos CSS do index.html atual
+            let cssStyles = '';
+            try {
+                const indexResp = await fetch('index.html');
+                const indexText = await indexResp.text();
+                const styleMatch = indexText.match(/<style>([\s\S]*?)<\/style>/);
+                if (styleMatch) {
+                    cssStyles = styleMatch[1];
+                }
+            } catch (e) {
+                console.warn('Não foi possível carregar estilos do index.html');
+            }
+
+            // Busca o código JavaScript da gamificação
+            let scriptCode = '';
+            try {
+                const resp = await fetch('public/gamificacao-core.js');
+                scriptCode = await resp.text();
+                // Garante que loadConfiguration e selectModule fiquem globais
+                scriptCode += '\nwindow.loadConfiguration = loadConfiguration;\nwindow.selectModule = selectModule;\n';
+                // Salva progresso no localStorage ao concluir módulo e ao carregar configuração
+                scriptCode += '\n(function(){' +
+                  'var _originalLoad=window.loadConfiguration;' +
+                  'window.loadConfiguration=function(config,source){_originalLoad(config,source);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};' +
+                  'if(window.completeModule){var _originalComplete=window.completeModule;window.completeModule=function(moduleId){_originalComplete(moduleId);try{localStorage.setItem(\'gamificacao_progresso\',JSON.stringify(window.currentConfig));}catch(e){}};}' +
+                '})();\n';
+                // Ao abrir, restaura progresso salvo se existir
+                scriptCode += '\nwindow.addEventListener(\'DOMContentLoaded\',function(){try{var salvo=localStorage.getItem(\'gamificacao_progresso\');if(salvo){window.currentConfig=JSON.parse(salvo);}}catch(e){}if(window.currentConfig){loadConfiguration(window.currentConfig,\'personalizada\');}});\n';
+                // Adiciona o tooltip div no HTML exportado se não existir
+                scriptCode += '\n// Garante que o tooltip existe\nif (!document.getElementById("tooltip")) { const tooltip = document.createElement("div"); tooltip.id = "tooltip"; tooltip.className = "module-tooltip"; document.body.appendChild(tooltip); }\n';
+            } catch (e) {
+                throw new Error('Erro ao carregar gamificacao-core.js: ' + e.message);
+            }
+
+            // Injeta a configuração atual
+            const configJson = JSON.stringify(config, null, 2);
+            const injectConfig = `window.currentConfig = JSON.parse(String.raw\`${configJson.replace(/`/g, '\u0060')}\`);`;
+
+            // Monta o HTML completo
+            let html = '';
+            html += '<!DOCTYPE html>\n';
+            html += '<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
+            html += '<title>' + (config.title || 'Sistema de Gamificação') + '</title>\n';
+            if (cssStyles) {
+                html += '<style>\n' + cssStyles + '\n</style>\n';
+            }
+            html += '</head>\n<body>\n';
+            html += '<div class="container">\n';
+            html += '    <div class="game-container active">\n';
+            html += '        <div class="game-header">\n';
+            html += '            <div>\n';
+            html += '                <h2 class="game-title">' + (config.title || 'Sistema de Gamificação') + '</h2>\n';
+            html += '                <div class="game-subtitle">' + (config.subtitle || 'Sistema de aprendizado progressivo') + '</div>\n';
+            html += '            </div>\n';
+            html += '        </div>\n';
+            html += '        <div class="status-bar" id="statusBar">Preparando sistema...</div>\n';
+            html += '        <div class="progress-section">\n';
+            html += '            <div class="progress-map" id="progressMap"></div>\n';
+            html += '            <div class="content-panel" id="contentPanel">\n';
+            html += '                <div class="content-title" id="contentTitle"></div>\n';
+            html += '                <div class="content-description" id="contentDescription"></div>\n';
+            html += '                <div class="content-body" id="contentBody"></div>\n';
+            html += '                <div class="action-buttons" id="actionButtons"></div>\n';
+            html += '            </div>\n';
+            html += '        </div>\n';
+            html += '    </div>\n';
+            html += '</div>\n';
+            html += '<div class="module-tooltip" id="tooltip"></div>\n';
+            html += '<script>\n';
+            html += injectConfig + '\n';
+            html += scriptCode + '\n';
+            html += '<' + '/script>\n';
+            html += '</body>\n</html>';
+
+            return html;
         }
 
         function copyToClipboard() {
