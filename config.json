@@ -1,0 +1,129 @@
+{
+  "settings": {
+    "checkpointRequiredModules": 4,
+    "showProgressMessages": true,
+    "autoSave": true,
+    "debugMode": false
+  },
+  "modules": {
+    "manobras": {
+      "title": "Manobras",
+      "description": "Aprenda as manobras básicas de condução",
+      "content": "Este módulo ensina as manobras fundamentais para uma condução segura, incluindo estacionamento, conversões e mudanças de faixa.",
+      "initialState": "available",
+      "isCheckpointRequirement": true,
+      "directUnlocks": ["baliza"],
+      "position": { "x": 50, "y": 15 }
+    },
+    "baliza": {
+      "title": "Baliza",
+      "description": "Técnicas de estacionamento em baliza",
+      "content": "Domine a arte do estacionamento em vaga de baliza, uma das habilidades mais importantes para todo condutor.",
+      "initialState": "locked",
+      "isCheckpointRequirement": false,
+      "directUnlocks": [],
+      "dependencies": ["manobras"],
+      "position": { "x": 70, "y": 15 }
+    },
+    "direcao-basica": {
+      "title": "Direção Básica",
+      "description": "Fundamentos da direção veicular",
+      "content": "Conceitos fundamentais de direção, incluindo postura, uso dos pedais e direcionamento do veículo.",
+      "initialState": "available",
+      "isCheckpointRequirement": true,
+      "directUnlocks": [],
+      "position": { "x": 50, "y": 30 }
+    },
+    "mecanica": {
+      "title": "Mecânica",
+      "description": "Noções básicas de mecânica automotiva",
+      "content": "Entenda o funcionamento básico do veículo, manutenção preventiva e identificação de problemas comuns.",
+      "initialState": "available",
+      "isCheckpointRequirement": true,
+      "directUnlocks": [],
+      "position": { "x": 30, "y": 35 }
+    },
+    "meio-ambiente-1": {
+      "title": "Meio Ambiente I",
+      "description": "Impactos ambientais do trânsito",
+      "content": "Compreenda como o trânsito afeta o meio ambiente e como dirigir de forma mais sustentável.",
+      "initialState": "available",
+      "isCheckpointRequirement": true,
+      "directUnlocks": [],
+      "position": { "x": 30, "y": 60 }
+    },
+    "meio-ambiente-2": {
+      "title": "Meio Ambiente II",
+      "description": "Práticas sustentáveis no trânsito",
+      "content": "Aprofunde seus conhecimentos sobre sustentabilidade no trânsito e práticas de condução ecológica.",
+      "initialState": "locked",
+      "isCheckpointRequirement": false,
+      "directUnlocks": [],
+      "requiresCheckpoint": true,
+      "position": { "x": 15, "y": 45 }
+    },
+    "direcao-defensiva-1": {
+      "title": "Direção Defensiva I",
+      "description": "Princípios da direção defensiva",
+      "content": "Aprenda os fundamentos da direção defensiva para prevenir acidentes e dirigir com segurança.",
+      "initialState": "locked",
+      "isCheckpointRequirement": false,
+      "directUnlocks": ["direcao-defensiva-2"],
+      "requiresCheckpoint": true,
+      "position": { "x": 60, "y": 45 }
+    },
+    "direcao-defensiva-2": {
+      "title": "Direção Defensiva II",
+      "description": "Técnicas avançadas de direção defensiva",
+      "content": "Técnicas avançadas para situações complexas no trânsito e condução em condições adversas.",
+      "initialState": "locked",
+      "isCheckpointRequirement": false,
+      "directUnlocks": [],
+      "dependencies": ["direcao-defensiva-1"],
+      "position": { "x": 75, "y": 40 }
+    },
+    "primeiros-socorros": {
+      "title": "Primeiros Socorros",
+      "description": "Atendimento básico em emergências",
+      "content": "Aprenda procedimentos básicos de primeiros socorros para situações de emergência no trânsito.",
+      "initialState": "locked",
+      "isCheckpointRequirement": false,
+      "directUnlocks": ["legislacao-1"],
+      "requiresCheckpoint": true,
+      "position": { "x": 50, "y": 75 }
+    },
+    "legislacao-1": {
+      "title": "Legislação I",
+      "description": "Código de Trânsito Brasileiro - Parte I",
+      "content": "Estude as leis de trânsito, sinalizações e normas de circulação do Código de Trânsito Brasileiro.",
+      "initialState": "locked",
+      "isCheckpointRequirement": false,
+      "directUnlocks": ["legislacao-2"],
+      "dependencies": ["primeiros-socorros"],
+      "position": { "x": 70, "y": 60 }
+    },
+    "legislacao-2": {
+      "title": "Legislação II",
+      "description": "Código de Trânsito Brasileiro - Parte II",
+      "content": "Aprofunde seus conhecimentos sobre infrações, penalidades e responsabilidades no trânsito.",
+      "initialState": "locked",
+      "isCheckpointRequirement": false,
+      "directUnlocks": [],
+      "dependencies": ["legislacao-1"],
+      "position": { "x": 85, "y": 60 }
+    }
+  },
+  "connections": [
+    { "from": "manobras", "to": "baliza" },
+    { "from": "manobras", "to": "checkpoint" },
+    { "from": "direcao-basica", "to": "checkpoint" },
+    { "from": "mecanica", "to": "checkpoint" },
+    { "from": "meio-ambiente-1", "to": "checkpoint" },
+    { "from": "checkpoint", "to": "meio-ambiente-2" },
+    { "from": "checkpoint", "to": "direcao-defensiva-1" },
+    { "from": "checkpoint", "to": "primeiros-socorros" },
+    { "from": "direcao-defensiva-1", "to": "direcao-defensiva-2" },
+    { "from": "primeiros-socorros", "to": "legislacao-1" },
+    { "from": "legislacao-1", "to": "legislacao-2" }
+  ]
+}

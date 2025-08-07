@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Configurações</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste de Carregamento de Configurações</h1>
+        
+        <div id="status" class="status"></div>
+        
+        <button class="button" onclick="testConfig('config-teste.json')">
+            🧪 Testar config-teste.json (2 módulos)
+        </button>
+        
+        <button class="button" onclick="testConfig('config-simples.json')">
+            🚀 Testar config-simples.json (4 módulos)
+        </button>
+        
+        <button class="button" onclick="testConfig('config.json')">
+            📚 Testar config.json (11 módulos)
+        </button>
+        
+        <button class="button" onclick="testDemoSystem()">
+            🎮 Testar Sistema Demo Principal
+        </button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'loading') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        function logResult(message) {
+            const result = document.getElementById('result');
+            const timestamp = new Date().toLocaleTimeString();
+            result.textContent += `[${timestamp}] ${message}\n`;
+            result.scrollTop = result.scrollHeight;
+        }
+
+        async function testConfig(filename) {
+            showStatus(`Carregando ${filename}...`, 'loading');
+            logResult(`Iniciando teste de ${filename}`);
+            
+            try {
+                const response = await fetch(filename);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const config = await response.json();
+                
+                logResult(`✅ ${filename} carregado com sucesso`);
+                logResult(`   - Módulos encontrados: ${Object.keys(config.modules || {}).length}`);
+                logResult(`   - Configurações: ${JSON.stringify(config.settings || {})}`);
+                
+                // Testa se a estrutura está correta
+                if (!config.modules) {
+                    throw new Error('Propriedade "modules" não encontrada');
+                }
+                
+                const moduleCount = Object.keys(config.modules).length;
+                if (moduleCount === 0) {
+                    throw new Error('Nenhum módulo encontrado');
+                }
+                
+                // Valida cada módulo
+                for (const [id, module] of Object.entries(config.modules)) {
+                    if (!module.title || !module.description || !module.content) {
+                        throw new Error(`Módulo "${id}" está incompleto`);
+                    }
+                    if (!module.position || typeof module.position.x !== 'number') {
+                        throw new Error(`Módulo "${id}" tem posição inválida`);
+                    }
+                }
+                
+                showStatus(`✅ ${filename} válido! ${moduleCount} módulos carregados`, 'success');
+                logResult(`✅ Validação completa - arquivo está correto`);
+                
+                setTimeout(hideStatus, 3000);
+                
+            } catch (error) {
+                logResult(`❌ Erro ao carregar ${filename}: ${error.message}`);
+                showStatus(`❌ Erro: ${error.message}`, 'error');
+                
+                setTimeout(hideStatus, 5000);
+            }
+        }
+
+        function testDemoSystem() {
+            showStatus('Testando sistema demo...', 'loading');
+            logResult('Abrindo demo.html em nova janela');
+            
+            try {
+                const newWindow = window.open('demo.html', '_blank');
+                
+                if (newWindow) {
+                    showStatus('✅ Demo aberto em nova janela', 'success');
+                    logResult('✅ demo.html aberto com sucesso');
+                } else {
+                    throw new Error('Popup bloqueado ou erro ao abrir');
+                }
+                
+                setTimeout(hideStatus, 3000);
+                
+            } catch (error) {
+                logResult(`❌ Erro ao abrir demo: ${error.message}`);
+                showStatus(`❌ Erro: ${error.message}`, 'error');
+                
+                setTimeout(hideStatus, 5000);
+            }
+        }
+
+        // Teste inicial ao carregar a página
+        window.addEventListener('load', function() {
+            logResult('Sistema de teste inicializado');
+            logResult('Clique nos botões acima para testar cada configuração');
+            
+            // Teste automático do arquivo mais simples
+            setTimeout(() => {
+                logResult('Executando teste automático...');
+                testConfig('config-teste.json');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gamificação - Curso de Condução</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 {
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Progress Map Styles */
+        .progress-map-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .legend-color.completed {
+            background: linear-gradient(135deg, #ff9500, #ff6b00);
+        }
+
+        .legend-color.current {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .legend-color.available {
+            background: linear-gradient(135deg, #a855f7, #3b82f6);
+        }
+
+        .legend-color.locked {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+        }
+
+        .progress-map {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: rgba(248, 250, 252, 0.5);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        /* Node Styles */
+        .progress-node {
+            position: absolute;
+            width: 120px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 11px;
+            text-align: center;
+            line-height: 1.2;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-node:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-node.completed {
+            background: linear-gradient(135deg, #ff9500, #ff6b00);
+            cursor: pointer;
+        }
+
+        .progress-node.current {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+
+        .progress-node.available {
+            background: linear-gradient(135deg, #a855f7, #3b82f6);
+            cursor: pointer;
+        }
+
+        .progress-node.locked {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Checkpoint styles */
+        .progress-node.checkpoint {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border: 4px solid #fff;
+            cursor: default; /* Checkpoint não é clicável */
+        }
+
+        .progress-node.checkpoint.completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .progress-node.checkpoint.current {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            animation: pulse 2s infinite;
+        }
+
+        .checkpoint-icon {
+            font-size: 18px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .node-content {
+            position: relative;
+            padding: 5px;
+        }
+
+        .node-title {
+            display: block;
+            word-break: break-word;
+            z-index: 2;
+            position: relative;
+        }
+
+        .lock-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            z-index: 3;
+        }
+
+        /* Connection Lines */
+        .connection-line {
+            position: absolute;
+            z-index: 1;
+            stroke: #e2e8f0;
+            stroke-width: 3;
+            stroke-dasharray: 8,4;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(79, 172, 254, 0.7);
+            }
+            70% {
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(79, 172, 254, 0);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(79, 172, 254, 0);
+            }
+        }
+
+        /* Home Page Styles */
+        .home {
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .home h1 {
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+
+        /* Content Details */
+        .content-details {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .content-details.active {
+            display: block;
+        }
+
+        .content-details h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .content-details p {
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .progress-map {
+                height: 400px;
+            }
+            
+            .progress-node {
+                width: 80px;
+                height: 60px;
+                font-size: 9px;
+            }
+            
+            .progress-node.checkpoint {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .legend {
+                gap: 15px;
+            }
+            
+            .legend-item {
+                font-size: 10px;
+            }
+            
+            .home h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="home">
+        <div class="container">
+            <h1>Sistema de Gamificação - Curso de Condução</h1>
+            
+            <div id="progress-display" style="text-align: center; color: white; margin-bottom: 20px; font-size: 18px;">
+                Progresso: <span id="completed-count">0</span>/<span id="total-count">0</span> módulos concluídos
+            </div>
+
+            <div class="progress-map-container">
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color completed"></div>
+                        <span>LIDO</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color current"></div>
+                        <span>LEITURA ATUAL</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color available"></div>
+                        <span>DISPONÍVEL</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color locked"></div>
+                        <span>BLOQUEADO</span>
+                    </div>
+                </div>
+                
+                <div class="progress-map">
+                    <!-- SVG para linhas de conexão - será gerado dinamicamente -->
+                    <svg id="connections-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+                        <!-- Linhas de conexão serão inseridas aqui dinamicamente -->
+                    </svg>
+                    
+                    <!-- Checkpoint Central - sempre presente -->
+                    <div id="checkpoint" class="progress-node checkpoint available" style="left: 50%; top: 45%;">
+                        <div class="checkpoint-icon">◯</div>
+                    </div>
+                    
+                    <!-- Nós do curso serão inseridos aqui dinamicamente -->
+                </div>
+            </div>
+
+            <!-- Conteúdo detalhado -->
+            <div id="content-details" class="content-details">
+                <button onclick="hideContent()" class="button" style="margin-bottom: 20px;">
+                    ← Voltar ao Mapa
+                </button>
+                
+                <h2 id="content-title">Título do Conteúdo</h2>
+                <p id="content-description"><strong>Descrição do conteúdo</strong></p>
+                <p id="content-text">Texto do conteúdo aqui...</p>
+                
+                <div style="margin-top: 30px; text-align: center;">
+                    <button onclick="completeContent()" class="button">
+                        ✓ Marcar como Concluído
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>Como funciona</h3>
+                <p>
+                    • Clique nos nós <strong>disponíveis</strong> (azuis) ou <strong>atuais</strong> (azul claro) para acessar o conteúdo<br/>
+                    • Complete um módulo para desbloquear os próximos<br/>
+                    • Nós <strong>bloqueados</strong> (cinza) só ficam disponíveis após completar os requisitos<br/>
+                    • Seu progresso é salvo automaticamente
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* 
+        =====================================================
+        SISTEMA DE GAMIFICAÇÃO DINÂMICO
+        =====================================================
+        
+        Este sistema carrega configurações de um arquivo JSON externo (config.json).
+        
+        ESTRUTURA DO ARQUIVO config.json:
+        {
+            "settings": {
+                "checkpointRequiredModules": 4,
+                "showProgressMessages": true,
+                "autoSave": true,
+                "debugMode": false
+            },
+            "modules": {
+                "id-do-modulo": {
+                    "title": "Título do Módulo",
+                    "description": "Descrição breve",
+                    "content": "Conteúdo completo",
+                    "initialState": "available|locked",
+                    "isCheckpointRequirement": boolean,
+                    "directUnlocks": ["modulo1", "modulo2"],
+                    "dependencies": ["modulo-prereq"],
+                    "requiresCheckpoint": boolean,
+                    "position": { "x": 50, "y": 30 }
+                }
+            },
+            "connections": [
+                { "from": "modulo1", "to": "modulo2" }
+            ]
+        }
+        
+        FUNÇÕES DISPONÍVEIS:
+        - loadConfiguration(filename)  : Carrega configuração de arquivo
+        - resetProgress()              : Reseta todo o progresso
+        - exportConfiguration()        : Baixa arquivo JSON com configuração
+        - debugInfo()                 : Console com informações detalhadas
+        - reloadConfiguration()       : Recarrega configuração do arquivo
+        =====================================================
+        */
+        
+        // Variáveis globais
+        let gameConfig = null;
+        let contentData = {};
+        let checkpointRequirements = [];
+        let checkpointUnlocks = [];
+        let completedModules = [];
+        let currentContent = null;
+        let configFileName = 'config.json'; // Arquivo padrão de configuração
+
+        // Função para carregar configuração do arquivo JSON
+        async function loadConfiguration(filename = configFileName) {
+            try {
+                console.log(`Carregando configuração de: ${filename}`);
+                const response = await fetch(filename);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro ao carregar ${filename}: ${response.status} ${response.statusText}`);
+                }
+                
+                const config = await response.json();
+                return config;
+            } catch (error) {
+                console.error('Erro ao carregar configuração:', error);
+                
+                // Configuração de fallback em caso de erro
+                return {
+                    settings: {
+                        checkpointRequiredModules: 0,
+                        showProgressMessages: true,
+                        autoSave: true,
+                        debugMode: true
+                    },
+                    modules: {
+                        'exemplo': {
+                            title: 'Módulo de Exemplo',
+                            description: 'Configuração de fallback',
+                            content: 'Não foi possível carregar o arquivo de configuração. Verifique se o arquivo config.json existe.',
+                            initialState: 'available',
+                            isCheckpointRequirement: false,
+                            position: { x: 50, y: 30 }
+                        }
+                    },
+                    connections: []
+                };
+            }
+        }
+
+        // Função para processar a configuração carregada
+        function processConfiguration(config) {
+            try {
+                gameConfig = config;
+                contentData = {};
+                checkpointRequirements = [];
+                checkpointUnlocks = [];
+                
+                // Verifica se a configuração é válida
+                if (!config.modules || typeof config.modules !== 'object') {
+                    throw new Error('Configuração deve conter um objeto "modules"');
+                }
+                
+                // Processa módulos
+                Object.keys(gameConfig.modules).forEach(moduleId => {
+                    const module = gameConfig.modules[moduleId];
+                    
+                    // Valida propriedades obrigatórias
+                    if (!module.title || !module.description || !module.content) {
+                        throw new Error(`Módulo "${moduleId}" deve ter title, description e content`);
+                    }
+                    
+                    if (!module.position || typeof module.position.x !== 'number' || typeof module.position.y !== 'number') {
+                        throw new Error(`Módulo "${moduleId}" deve ter posição válida (x, y)`);
+                    }
+                    
+                    // Adiciona ao contentData para compatibilidade
+                    contentData[moduleId] = {
+                        title: module.title,
+                        description: module.description,
+                        content: module.content,
+                        unlocks: module.directUnlocks || []
+                    };
+                    
+                    // Identifica módulos do checkpoint
+                    if (module.isCheckpointRequirement) {
+                        checkpointRequirements.push(moduleId);
+                    }
+                    
+                    // Identifica módulos desbloqueados pelo checkpoint
+                    if (module.requiresCheckpoint) {
+                        checkpointUnlocks.push(moduleId);
+                    }
+                });
+                
+                console.log(`Configuração processada: ${Object.keys(gameConfig.modules).length} módulos carregados`);
+                return true;
+                
+            } catch (error) {
+                console.error('Erro ao processar configuração:', error);
+                
+                // Configuração de fallback
+                gameConfig = {
+                    settings: { showProgressMessages: true, autoSave: false, debugMode: true },
+                    modules: {
+                        'erro': {
+                            title: 'Erro de Configuração',
+                            description: 'Configuração inválida detectada',
+                            content: `Erro: ${error.message}. Verifique o arquivo de configuração e tente novamente.`,
+                            initialState: 'available',
+                            position: { x: 50, y: 50 }
+                        }
+                    },
+                    connections: []
+                };
+                
+                contentData = {
+                    'erro': {
+                        title: 'Erro de Configuração',
+                        description: 'Configuração inválida',
+                        content: `Erro: ${error.message}`
+                    }
+                };
+                
+                checkpointRequirements = [];
+                checkpointUnlocks = [];
+                
+                throw error;
+            }
+        }
+
+        // Função para gerar o HTML dos módulos dinamicamente
+        function generateModuleHTML() {
+            const progressMap = document.querySelector('.progress-map');
+            
+            // Remove módulos existentes (exceto checkpoint e SVG)
+            const existingModules = progressMap.querySelectorAll('.progress-node:not(#checkpoint)');
+            existingModules.forEach(module => module.remove());
+            
+            // Gera módulos baseados na configuração
+            Object.keys(gameConfig.modules).forEach(moduleId => {
+                const module = gameConfig.modules[moduleId];
+                
+                // Cria elemento do módulo
+                const moduleElement = document.createElement('div');
+                moduleElement.id = moduleId;
+                moduleElement.className = `progress-node ${module.initialState}`;
+                moduleElement.style.left = `${module.position.x}%`;
+                moduleElement.style.top = `${module.position.y}%`;
+                
+                // Cria conteúdo do nó
+                const nodeContent = document.createElement('div');
+                nodeContent.className = 'node-content';
+                
+                const nodeTitle = document.createElement('span');
+                nodeTitle.className = 'node-title';
+                nodeTitle.innerHTML = module.title.toUpperCase().replace(/\s+/g, '<br/>');
+                
+                nodeContent.appendChild(nodeTitle);
+                
+                // Adiciona ícone de bloqueio se necessário
+                if (module.initialState === 'locked') {
+                    const lockOverlay = document.createElement('div');
+                    lockOverlay.className = 'lock-overlay';
+                    lockOverlay.textContent = '🔒';
+                    nodeContent.appendChild(lockOverlay);
+                    moduleElement.onclick = null;
+                } else {
+                    moduleElement.onclick = () => showContent(moduleId);
+                }
+                
+                moduleElement.appendChild(nodeContent);
+                progressMap.appendChild(moduleElement);
+            });
+        }
+
+        // Função para gerar linhas de conexão dinamicamente
+        function generateConnectionLines() {
+            const svg = document.getElementById('connections-svg');
+            svg.innerHTML = ''; // Limpa linhas existentes
+            
+            if (!gameConfig.connections) return;
+            
+            gameConfig.connections.forEach(connection => {
+                const fromModule = gameConfig.modules[connection.from];
+                const toModule = gameConfig.modules[connection.to];
+                
+                if (!fromModule || !toModule) return;
+                
+                let fromX, fromY, toX, toY;
+                
+                // Posições especiais para o checkpoint
+                if (connection.from === 'checkpoint') {
+                    fromX = 50;
+                    fromY = 45;
+                } else {
+                    fromX = fromModule.position.x;
+                    fromY = fromModule.position.y;
+                }
+                
+                if (connection.to === 'checkpoint') {
+                    toX = 50;
+                    toY = 45;
+                } else {
+                    toX = toModule.position.x;
+                    toY = toModule.position.y;
+                }
+                
+                // Cria linha SVG
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', `${fromX}%`);
+                line.setAttribute('y1', `${fromY}%`);
+                line.setAttribute('x2', `${toX}%`);
+                line.setAttribute('y2', `${toY}%`);
+                line.setAttribute('stroke', '#e2e8f0');
+                line.setAttribute('stroke-width', '3');
+                line.setAttribute('stroke-dasharray', '8,4');
+                
+                svg.appendChild(line);
+            });
+        }
+
+        // Função para atualizar contador de progresso
+        function updateProgress() {
+            const completedCount = completedModules.length;
+            const totalCount = Object.keys(contentData).length;
+            document.getElementById('completed-count').textContent = completedCount;
+            document.getElementById('total-count').textContent = totalCount;
+        }
+
+        // Função para inicializar o estado do jogo
+        function initializeGameState() {
+            if (!gameConfig) return;
+            
+            // Aplica estados iniciais baseados na configuração
+            Object.keys(gameConfig.modules).forEach(moduleId => {
+                const module = gameConfig.modules[moduleId];
+                const element = document.getElementById(moduleId);
+                
+                if (!element) return;
+                
+                // Aplica estado inicial
+                switch (module.initialState) {
+                    case 'available':
+                        element.className = 'progress-node available';
+                        element.onclick = () => showContent(moduleId);
+                        break;
+                    case 'locked':
+                        element.className = 'progress-node locked';
+                        element.onclick = null;
+                        break;
+                    case 'completed':
+                        element.className = 'progress-node completed';
+                        element.onclick = () => showContent(moduleId);
+                        if (!completedModules.includes(moduleId)) {
+                            completedModules.push(moduleId);
+                        }
+                        break;
+                }
+            });
+            
+            // Atualiza o checkpoint inicial
+            updateCheckpointVisual();
+            updateProgress();
+        }
+
+        function checkModuleDependencies(moduleId) {
+            const module = gameConfig.modules[moduleId];
+            if (!module || !module.dependencies) return true;
+            
+            // Verifica se todas as dependências foram completadas
+            return module.dependencies.every(depId => completedModules.includes(depId));
+        }
+
+        function unlockModulesByDependencies() {
+            // Verifica todos os módulos para ver se podem ser desbloqueados
+            Object.keys(gameConfig.modules).forEach(moduleId => {
+                const module = gameConfig.modules[moduleId];
+                const element = document.getElementById(moduleId);
+                
+                if (element && element.classList.contains('locked')) {
+                    // Verifica dependências diretas
+                    if (module.dependencies && checkModuleDependencies(moduleId)) {
+                        unlockModule(moduleId);
+                    }
+                }
+            });
+        }
+
+        function updateCheckpointVisual() {
+            // Conta quantos módulos conectados ao checkpoint foram completados
+            const completedRequirements = checkpointRequirements.filter(module => 
+                completedModules.includes(module)
+            ).length;
+            
+            const checkpointElement = document.getElementById('checkpoint');
+            
+            if (completedRequirements === 0) {
+                // Nenhum módulo completado - estado inicial
+                checkpointElement.className = 'progress-node checkpoint available';
+                checkpointElement.innerHTML = '<div class="checkpoint-icon">◯</div>';
+            } else if (completedRequirements === checkpointRequirements.length) {
+                // Todos os módulos completados - checkpoint ativo
+                checkpointElement.className = 'progress-node checkpoint completed';
+                checkpointElement.innerHTML = '<div class="checkpoint-icon">✓</div>';
+                
+                // Desbloqueia os módulos que dependem do checkpoint (apenas uma vez)
+                if (!checkpointElement.hasAttribute('data-unlocked')) {
+                    checkpointUnlocks.forEach(moduleId => {
+                        unlockModule(moduleId);
+                    });
+                    checkpointElement.setAttribute('data-unlocked', 'true');
+                    
+                    // Mostra mensagem de desbloqueio
+                    if (gameConfig.settings.showProgressMessages) {
+                        setTimeout(() => {
+                            alert('🎉 Todos os módulos básicos concluídos! Novos conteúdos desbloqueados.');
+                        }, 100);
+                    }
+                }
+            } else {
+                // Alguns módulos completados - progresso parcial
+                checkpointElement.className = 'progress-node checkpoint current';
+                checkpointElement.innerHTML = `<div class="checkpoint-icon">${completedRequirements}/${checkpointRequirements.length}</div>`;
+            }
+        }
+
+        function unlockModule(moduleId) {
+            const element = document.getElementById(moduleId);
+            if (element && element.classList.contains('locked')) {
+                element.className = 'progress-node available';
+                element.onclick = () => showContent(moduleId);
+                
+                // Remove o ícone de bloqueio
+                const lockOverlay = element.querySelector('.lock-overlay');
+                if (lockOverlay) {
+                    lockOverlay.remove();
+                }
+            }
+        }
+
+        function markAsCompleted(moduleId) {
+            const element = document.getElementById(moduleId);
+            if (element) {
+                element.className = 'progress-node completed';
+                element.onclick = () => showContent(moduleId);
+            }
+        }
+
+        function showContent(contentId) {
+            if (!contentData[contentId]) return;
+            
+            currentContent = contentId;
+            const content = contentData[contentId];
+            
+            document.getElementById('content-title').textContent = content.title;
+            document.getElementById('content-description').innerHTML = `<strong>${content.description}</strong>`;
+            document.getElementById('content-text').textContent = content.content;
+            
+            document.getElementById('content-details').classList.add('active');
+            document.querySelector('.progress-map-container').style.display = 'none';
+            document.querySelector('.info-box').style.display = 'none';
+        }
+
+        function hideContent() {
+            document.getElementById('content-details').classList.remove('active');
+            document.querySelector('.progress-map-container').style.display = 'block';
+            document.querySelector('.info-box').style.display = 'block';
+            currentContent = null;
+        }
+
+        function completeContent() {
+            if (!currentContent) return;
+            
+            // Verifica se já foi completado
+            if (completedModules.includes(currentContent)) {
+                alert('Este módulo já foi concluído!');
+                hideContent();
+                return;
+            }
+            
+            // Marca como completado
+            completedModules.push(currentContent);
+            markAsCompleted(currentContent);
+            
+            // Desbloqueia módulos dependentes diretos (configurado em directUnlocks)
+            const module = gameConfig.modules[currentContent];
+            if (module && module.directUnlocks) {
+                module.directUnlocks.forEach(moduleId => {
+                    unlockModule(moduleId);
+                });
+            }
+            
+            // Verifica dependências de todos os módulos
+            unlockModulesByDependencies();
+            
+            // Atualiza o visual do checkpoint
+            updateCheckpointVisual();
+            
+            // Atualiza contador de progresso
+            updateProgress();
+            
+            // Salva progresso se configurado
+            if (gameConfig.settings.autoSave) {
+                saveProgress();
+            }
+            
+            // Mostra mensagem de sucesso se configurado
+            if (gameConfig.settings.showProgressMessages) {
+                const content = contentData[currentContent];
+                alert(`✅ Conteúdo "${content.title}" marcado como concluído!`);
+            }
+            
+            hideContent();
+        }
+
+        function saveProgress() {
+            // Salva o progresso no localStorage
+            localStorage.setItem('gamification-progress', JSON.stringify(completedModules));
+        }
+
+        function loadProgress() {
+            // Carrega o progresso do localStorage
+            const saved = localStorage.getItem('gamification-progress');
+            if (saved) {
+                try {
+                    const savedProgress = JSON.parse(saved);
+                    completedModules = savedProgress || [];
+                    
+                    // Aplica o progresso salvo
+                    completedModules.forEach(moduleId => {
+                        markAsCompleted(moduleId);
+                    });
+                    
+                    updateCheckpointVisual();
+                    updateProgress();
+                    unlockModulesByDependencies();
+                } catch (error) {
+                    console.log('Erro ao carregar progresso salvo:', error);
+                }
+            }
+        }
+
+        // Função para recarregar configuração
+        async function reloadConfiguration(filename) {
+            const config = await loadConfiguration(filename);
+            processConfiguration(config);
+            generateModuleHTML();
+            generateConnectionLines();
+            initializeGameState();
+            loadProgress();
+            console.log('Configuração recarregada com sucesso!');
+        }
+
+        // Função para exportar configuração atual
+        function exportConfiguration() {
+            const config = {
+                ...gameConfig,
+                completedModules: completedModules
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gamification-config-export.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Função para importar configuração
+        function importConfiguration(jsonFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    processConfiguration(config);
+                    generateModuleHTML();
+                    generateConnectionLines();
+                    
+                    if (config.completedModules) {
+                        completedModules = config.completedModules;
+                        completedModules.forEach(moduleId => {
+                            markAsCompleted(moduleId);
+                        });
+                        updateCheckpointVisual();
+                        updateProgress();
+                    }
+                    
+                    initializeGameState();
+                    alert('Configuração importada com sucesso!');
+                } catch (error) {
+                    alert('Erro ao importar configuração: ' + error.message);
+                }
+            };
+            reader.readAsText(jsonFile);
+        }
+
+        // Função para resetar progresso
+        function resetProgress() {
+            if (confirm('Tem certeza que deseja resetar todo o progresso?')) {
+                completedModules = [];
+                localStorage.removeItem('gamification-progress');
+                
+                // Re-inicializa o estado
+                initializeGameState();
+                
+                alert('Progresso resetado com sucesso!');
+            }
+        }
+
+        // Função para debug - mostra informações do sistema
+        function debugInfo() {
+            console.group('Informações de Debug do Sistema de Gamificação');
+            console.log('Módulos completados:', completedModules);
+            console.log('Configuração atual:', gameConfig);
+            console.log('Conteúdo atual:', currentContent);
+            console.log('Arquivo de configuração:', configFileName);
+            console.log('Estado dos módulos:');
+            
+            Object.keys(gameConfig.modules || {}).forEach(moduleId => {
+                const module = document.getElementById(moduleId);
+                const config = gameConfig.modules[moduleId];
+                console.log(`- ${moduleId}:`, {
+                    estado: module?.className,
+                    config: config,
+                    completado: completedModules.includes(moduleId)
+                });
+            });
+            console.groupEnd();
+        }
+
+        // Inicialização do sistema
+        window.addEventListener('load', async function() {
+            console.log('Iniciando sistema de gamificação dinâmico...');
+            
+            // Carrega configuração do arquivo
+            const config = await loadConfiguration();
+            processConfiguration(config);
+            
+            // Gera interface baseada na configuração
+            generateModuleHTML();
+            generateConnectionLines();
+            
+            // Inicializa estado do jogo
+            initializeGameState();
+            loadProgress();
+            
+            // Adiciona atalhos de teclado para debug (se habilitado)
+            if (gameConfig.settings.debugMode) {
+                document.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'd') {
+                        e.preventDefault();
+                        debugInfo();
+                    }
+                    if (e.ctrlKey && e.key === 'r') {
+                        e.preventDefault();
+                        resetProgress();
+                    }
+                    if (e.ctrlKey && e.key === 'l') {
+                        e.preventDefault();
+                        reloadConfiguration();
+                    }
+                });
+            }
+            
+            console.log('Sistema inicializado com sucesso!');
+        });
+
+        // Escuta mensagens de configuração externa (para uso em iframes)
+        window.addEventListener('message', function(event) {
+            console.log('Mensagem recebida no iframe:', event.data);
+            
+            if (event.data.type === 'loadConfig' && event.data.config) {
+                console.log('Carregando configuração externa...', event.data.config);
+                
+                try {
+                    processConfiguration(event.data.config);
+                    generateModuleHTML();
+                    generateConnectionLines();
+                    initializeGameState();
+                    
+                    console.log('Configuração externa aplicada com sucesso!');
+                    
+                    // Envia confirmação de volta
+                    if (event.source) {
+                        event.source.postMessage({
+                            type: 'configLoaded',
+                            success: true,
+                            moduleCount: Object.keys(gameConfig.modules).length,
+                            message: 'Configuração carregada com sucesso!'
+                        }, '*');
+                    }
+                } catch (error) {
+                    console.error('Erro ao aplicar configuração externa:', error);
+                    
+                    if (event.source) {
+                        event.source.postMessage({
+                            type: 'configLoaded',
+                            success: false,
+                            error: error.message
+                        }, '*');
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

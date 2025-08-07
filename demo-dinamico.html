@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gamificação - Demonstração Dinâmica</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .config-selector {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .config-option {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .config-option:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .demo-frame {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            height: 80vh;
+        }
+
+        .demo-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 Sistema de Gamificação Dinâmico</h1>
+        <p>Demonstração de carregamento de configurações externas</p>
+    </div>
+
+    <div class="config-selector">
+        <h3>Escolha uma configuração:</h3>
+        
+        <div id="status-indicator" style="margin-bottom: 15px; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.1); display: none;">
+            <span id="status-text">Carregando sistema...</span>
+        </div>
+        
+        <button class="config-option" onclick="loadConfig('config.json')">
+            📚 Configuração Completa (11 módulos)
+        </button>
+        
+        <button class="config-option" onclick="loadConfig('config-simples.json')">
+            🚀 Configuração Simples (4 módulos)
+        </button>
+        
+        <button class="config-option" onclick="loadConfig('config-teste.json')">
+            🧪 Configuração de Teste (2 módulos)
+        </button>
+        
+        <button class="config-option" onclick="createCustomConfig()">
+            ⚙️ Criar Configuração Personalizada
+        </button>
+        
+        <button class="config-option" onclick="uploadConfig()">
+            📁 Carregar Arquivo JSON
+        </button>
+    </div>
+
+    <div class="demo-frame">
+        <iframe id="demo-iframe" src="demo.html"></iframe>
+    </div>
+
+    <div class="info-box">
+        <h4>Como funciona:</h4>
+        <ul>
+            <li><strong>Configuração Completa:</strong> Sistema original com 11 módulos de curso de condução</li>
+            <li><strong>Configuração Simples:</strong> Exemplo com apenas 4 módulos para demonstrar flexibilidade</li>
+            <li><strong>Configuração de Teste:</strong> Apenas 2 módulos para teste rápido de funcionalidade</li>
+            <li><strong>Personalizada:</strong> Crie sua própria configuração dinamicamente</li>
+            <li><strong>Upload:</strong> Carregue um arquivo JSON personalizado</li>
+        </ul>
+        <p><strong>Dica:</strong> O sistema lê automaticamente o arquivo JSON e gera toda a interface baseada nele!</p>
+        <p><strong>Debug:</strong> Abra o console do navegador (F12) para ver logs detalhados do carregamento.</p>
+    </div>
+
+    <input type="file" id="file-input" accept=".json" style="display: none;" onchange="handleFileUpload(event)">
+
+    <script>
+        function loadConfig(configFile) {
+            console.log('Carregando configuração:', configFile);
+            showStatus(`🔄 Carregando ${configFile}...`, 'loading');
+            
+            fetch(configFile)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(config => {
+                    console.log('Configuração carregada:', config);
+                    
+                    // Aguarda o iframe carregar completamente
+                    const iframe = document.getElementById('demo-iframe');
+                    
+                    function sendConfig() {
+                        try {
+                            // Envia configuração para o iframe
+                            iframe.contentWindow.postMessage({
+                                type: 'loadConfig',
+                                config: config
+                            }, '*');
+                            console.log('Configuração enviada para iframe');
+                        } catch (error) {
+                            console.error('Erro ao enviar configuração:', error);
+                            showStatus('❌ Erro ao comunicar com o sistema', 'error');
+                            // Tenta novamente após um tempo
+                            setTimeout(sendConfig, 500);
+                        }
+                    }
+                    
+                    // Se o iframe já carregou, envia imediatamente
+                    if (iframe.contentWindow && iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                        sendConfig();
+                    } else {
+                        // Caso contrário, aguarda o carregamento
+                        iframe.onload = sendConfig;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar configuração:', error);
+                    showStatus(`❌ Erro ao carregar ${configFile}: ${error.message}`, 'error');
+                });
+        }
+
+        function createCustomConfig() {
+            showStatus('🔧 Criando configuração personalizada...', 'loading');
+            
+            const customConfig = {
+                settings: {
+                    checkpointRequiredModules: 1,
+                    showProgressMessages: true,
+                    autoSave: true,
+                    debugMode: true
+                },
+                modules: {
+                    'inicio': {
+                        title: 'Início do Curso',
+                        description: 'Bem-vindo ao curso personalizado',
+                        content: 'Este é um exemplo de configuração criada dinamicamente!',
+                        initialState: 'available',
+                        isCheckpointRequirement: true,
+                        position: { x: 30, y: 30 }
+                    },
+                    'personalizado': {
+                        title: 'Módulo Personalizado',
+                        description: 'Conteúdo adaptado às suas necessidades',
+                        content: 'Aqui você pode adicionar qualquer conteúdo específico que desejar.',
+                        initialState: 'locked',
+                        requiresCheckpoint: true,
+                        position: { x: 70, y: 60 }
+                    }
+                },
+                connections: [
+                    { from: 'inicio', to: 'checkpoint' },
+                    { from: 'checkpoint', to: 'personalizado' }
+                ]
+            };
+
+            // Envia configuração para o iframe
+            const iframe = document.getElementById('demo-iframe');
+            
+            function sendCustomConfig() {
+                try {
+                    iframe.contentWindow.postMessage({
+                        type: 'loadConfig',
+                        config: customConfig
+                    }, '*');
+                    console.log('Configuração personalizada enviada');
+                } catch (error) {
+                    console.error('Erro ao enviar configuração personalizada:', error);
+                    showStatus('❌ Erro ao comunicar com o sistema', 'error');
+                    setTimeout(sendCustomConfig, 500);
+                }
+            }
+            
+            if (iframe.contentWindow && iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                sendCustomConfig();
+            } else {
+                iframe.onload = sendCustomConfig;
+            }
+        }
+
+        function uploadConfig() {
+            document.getElementById('file-input').click();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showStatus('📁 Processando arquivo...', 'loading');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    console.log('Arquivo carregado:', config);
+                    
+                    // Envia configuração para o iframe
+                    const iframe = document.getElementById('demo-iframe');
+                    
+                    function sendUploadedConfig() {
+                        try {
+                            iframe.contentWindow.postMessage({
+                                type: 'loadConfig',
+                                config: config
+                            }, '*');
+                            console.log('Configuração do arquivo enviada');
+                        } catch (error) {
+                            console.error('Erro ao enviar configuração:', error);
+                            showStatus('❌ Erro ao comunicar com o sistema', 'error');
+                            setTimeout(sendUploadedConfig, 500);
+                        }
+                    }
+                    
+                    if (iframe.contentWindow && iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                        sendUploadedConfig();
+                    } else {
+                        iframe.onload = sendUploadedConfig;
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao processar arquivo:', error);
+                    showStatus(`❌ Arquivo JSON inválido: ${error.message}`, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Escuta mensagens do iframe
+        window.addEventListener('message', function(event) {
+            console.log('Mensagem recebida:', event.data);
+            
+            if (event.data.type === 'configLoaded') {
+                console.log('Configuração carregada no iframe:', event.data);
+                
+                const statusIndicator = document.getElementById('status-indicator');
+                const statusText = document.getElementById('status-text');
+                
+                if (event.data.success) {
+                    statusIndicator.style.display = 'block';
+                    statusIndicator.style.background = 'rgba(76, 175, 80, 0.3)';
+                    statusText.textContent = `✅ Configuração carregada! ${event.data.moduleCount} módulos ativos.`;
+                    
+                    // Atualiza a borda do iframe
+                    const iframe = document.getElementById('demo-iframe');
+                    iframe.style.border = '3px solid #4CAF50';
+                    
+                    setTimeout(() => {
+                        iframe.style.border = 'none';
+                        statusIndicator.style.display = 'none';
+                    }, 3000);
+                } else {
+                    statusIndicator.style.display = 'block';
+                    statusIndicator.style.background = 'rgba(244, 67, 54, 0.3)';
+                    statusText.textContent = `❌ Erro ao carregar: ${event.data.error}`;
+                    
+                    setTimeout(() => {
+                        statusIndicator.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        });
+
+        // Aguarda o iframe carregar antes de permitir interações
+        window.addEventListener('load', function() {
+            const iframe = document.getElementById('demo-iframe');
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            
+            // Mostra status de carregamento
+            statusIndicator.style.display = 'block';
+            statusIndicator.style.background = 'rgba(255, 193, 7, 0.3)';
+            statusText.textContent = '⏳ Carregando sistema de gamificação...';
+            
+            iframe.onload = function() {
+                console.log('Iframe carregado completamente');
+                
+                // Esconde o status após um tempo
+                setTimeout(() => {
+                    statusIndicator.style.display = 'none';
+                }, 2000);
+                
+                // Habilita os botões
+                const buttons = document.querySelectorAll('.config-option');
+                buttons.forEach(button => {
+                    button.style.opacity = '1';
+                    button.style.pointerEvents = 'auto';
+                });
+            };
+            
+            // Inicialmente desabilita os botões até o iframe carregar
+            const buttons = document.querySelectorAll('.config-option');
+            buttons.forEach(button => {
+                button.style.opacity = '0.7';
+                button.style.pointerEvents = 'none';
+            });
+        });
+
+        // Função para mostrar status temporário
+        function showStatus(message, type = 'info') {
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            
+            statusIndicator.style.display = 'block';
+            statusText.textContent = message;
+            
+            switch(type) {
+                case 'success':
+                    statusIndicator.style.background = 'rgba(76, 175, 80, 0.3)';
+                    break;
+                case 'error':
+                    statusIndicator.style.background = 'rgba(244, 67, 54, 0.3)';
+                    break;
+                case 'loading':
+                    statusIndicator.style.background = 'rgba(255, 193, 7, 0.3)';
+                    break;
+                default:
+                    statusIndicator.style.background = 'rgba(33, 150, 243, 0.3)';
+            }
+            
+            setTimeout(() => {
+                statusIndicator.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

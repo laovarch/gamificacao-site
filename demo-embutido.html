@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gamificação</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .progress-section {
+            padding: 40px;
+        }
+
+        .progress-map {
+            position: relative;
+            min-height: 600px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .module {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .module:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .module.available {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            animation: pulse 2s infinite;
+        }
+
+        .module.locked {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .module.completed {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+
+        .module.current {
+            background: linear-gradient(45deg, #ffc107, #e0a800);
+            border-color: #fff;
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
+
+        .module.checkpoint {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            width: 100px;
+            height: 100px;
+            border: 4px solid #fff;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+            50% { box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4); }
+            100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        }
+
+        @keyframes glow {
+            from { 
+                box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+                border-color: rgba(255, 255, 255, 0.8);
+            }
+            to { 
+                box-shadow: 0 12px 35px rgba(255, 193, 7, 0.8);
+                border-color: rgba(255, 255, 255, 1);
+            }
+        }
+
+        .connection-line {
+            position: absolute;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            height: 3px;
+            transform-origin: left center;
+            opacity: 0.7;
+            z-index: 1;
+        }
+
+        .module-tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .module-tooltip.show {
+            opacity: 1;
+        }
+
+        .content-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .content-panel.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .content-description {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .content-body {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            color: #dc3545;
+            background: #f8d7da;
+            border-radius: 10px;
+            margin: 20px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .progress-section {
+                padding: 20px;
+            }
+            
+            .module {
+                width: 60px;
+                height: 60px;
+                font-size: 1.2rem;
+            }
+            
+            .module.checkpoint {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="courseTitle">🎮 Sistema de Gamificação</h1>
+            <div class="subtitle" id="courseSubtitle">Carregando configuração...</div>
+        </div>
+
+        <div class="status-bar" id="statusBar">
+            Preparando sistema...
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-map" id="progressMap">
+                <div class="loading" id="loading">
+                    🔄 Carregando configuração do curso...
+                </div>
+            </div>
+
+            <div class="content-panel" id="contentPanel">
+                <div class="content-title" id="contentTitle"></div>
+                <div class="content-description" id="contentDescription"></div>
+                <div class="content-body" id="contentBody"></div>
+                <div class="action-buttons" id="actionButtons"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-tooltip" id="tooltip"></div>
+
+    <script>
+        let gameConfig = null;
+        let currentModule = null;
+
+        // Escuta mensagens do iframe pai
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'loadConfig') {
+                processConfiguration(event.data.config);
+            }
+        });
+
+        // Carrega configuração da URL (fallback)
+        function loadConfigurationFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const configData = urlParams.get('config');
+            
+            if (configData) {
+                try {
+                    const config = JSON.parse(decodeURIComponent(configData));
+                    processConfiguration(config);
+                } catch (error) {
+                    console.error('Erro ao decodificar configuração:', error);
+                    showWaitingMessage();
+                }
+            } else {
+                showWaitingMessage();
+            }
+        }
+
+        function showWaitingMessage() {
+            const mapContainer = document.getElementById('progressMap');
+            mapContainer.innerHTML = `
+                <div class="loading">
+                    🔄 Aguardando configuração do sistema pai...
+                    <br><small>Selecione uma configuração na página principal</small>
+                </div>
+            `;
+            
+            document.getElementById('statusBar').textContent = '⏳ Aguardando configuração...';
+        }
+
+        function processConfiguration(config) {
+            gameConfig = config;
+            
+            // Atualiza título
+            document.getElementById('courseTitle').textContent = config.title || '🎮 Sistema de Gamificação';
+            document.getElementById('courseSubtitle').textContent = 
+                `${Object.keys(config.modules).length} módulos disponíveis`;
+            
+            // Atualiza status
+            updateStatusBar();
+            
+            // Gera o mapa
+            generateProgressMap();
+            
+            // Remove loading
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function generateProgressMap() {
+            const mapContainer = document.getElementById('progressMap');
+            mapContainer.innerHTML = '';
+
+            // Gera módulos
+            Object.entries(gameConfig.modules).forEach(([id, module]) => {
+                const moduleElement = createModuleElement(id, module);
+                mapContainer.appendChild(moduleElement);
+            });
+
+            // Gera conexões
+            if (gameConfig.connections) {
+                gameConfig.connections.forEach(connection => {
+                    const line = createConnectionLine(connection.from, connection.to);
+                    if (line) mapContainer.appendChild(line);
+                });
+            }
+        }
+
+        function createModuleElement(id, module) {
+            const element = document.createElement('div');
+            element.className = 'module';
+            element.id = `module-${id}`;
+            element.style.left = `${module.position.x}%`;
+            element.style.top = `${module.position.y}%`;
+            element.style.transform = 'translate(-50%, -50%)';
+            
+            // Determina o estado do módulo
+            let state = 'locked';
+            if (module.isCompleted) {
+                state = 'completed';
+            } else if (module.isAvailable) {
+                state = 'available';
+            }
+            
+            if (module.type === 'checkpoint') {
+                element.classList.add('checkpoint');
+            }
+            
+            element.classList.add(state);
+            
+            // Emoji baseado no tipo e estado
+            let emoji = '📚';
+            if (module.type === 'checkpoint') {
+                emoji = '🎯';
+            } else if (state === 'completed') {
+                emoji = '✅';
+            } else if (state === 'locked') {
+                emoji = '🔒';
+            }
+            
+            element.textContent = emoji;
+            
+            // Event listeners
+            if (state !== 'locked') {
+                element.addEventListener('click', () => selectModule(id));
+            }
+            
+            element.addEventListener('mouseenter', (e) => showTooltip(e, module));
+            element.addEventListener('mouseleave', hideTooltip);
+            
+            return element;
+        }
+
+        function createConnectionLine(fromId, toId) {
+            const fromElement = document.getElementById(`module-${fromId}`);
+            const toElement = document.getElementById(`module-${toId}`);
+            
+            if (!fromElement || !toElement) return null;
+            
+            const fromRect = fromElement.getBoundingClientRect();
+            const toRect = toElement.getBoundingClientRect();
+            const mapRect = document.getElementById('progressMap').getBoundingClientRect();
+            
+            const fromX = (fromRect.left + fromRect.width/2 - mapRect.left) / mapRect.width * 100;
+            const fromY = (fromRect.top + fromRect.height/2 - mapRect.top) / mapRect.height * 100;
+            const toX = (toRect.left + toRect.width/2 - mapRect.left) / mapRect.width * 100;
+            const toY = (toRect.top + toRect.height/2 - mapRect.top) / mapRect.height * 100;
+            
+            const length = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
+            const angle = Math.atan2(toY - fromY, toX - fromX) * 180 / Math.PI;
+            
+            const line = document.createElement('div');
+            line.className = 'connection-line';
+            line.style.left = `${fromX}%`;
+            line.style.top = `${fromY}%`;
+            line.style.width = `${length}%`;
+            line.style.transform = `rotate(${angle}deg)`;
+            
+            return line;
+        }
+
+        function selectModule(moduleId) {
+            currentModule = moduleId;
+            const module = gameConfig.modules[moduleId];
+            
+            // Atualiza painel de conteúdo
+            document.getElementById('contentTitle').textContent = module.title;
+            document.getElementById('contentDescription').textContent = module.description;
+            document.getElementById('contentBody').textContent = module.content;
+            
+            // Botões de ação
+            const buttonsContainer = document.getElementById('actionButtons');
+            buttonsContainer.innerHTML = '';
+            
+            if (!module.isCompleted && module.type !== 'checkpoint') {
+                const completeBtn = document.createElement('button');
+                completeBtn.className = 'btn btn-success';
+                completeBtn.innerHTML = '✅ Marcar como Concluído';
+                completeBtn.onclick = () => completeModule(moduleId);
+                buttonsContainer.appendChild(completeBtn);
+            }
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'btn btn-secondary';
+            closeBtn.innerHTML = '✖️ Fechar';
+            closeBtn.onclick = closeContentPanel;
+            buttonsContainer.appendChild(closeBtn);
+            
+            // Mostra painel
+            document.getElementById('contentPanel').classList.add('active');
+            
+            // Atualiza estado visual
+            document.querySelectorAll('.module').forEach(el => el.classList.remove('current'));
+            document.getElementById(`module-${moduleId}`).classList.add('current');
+        }
+
+        function completeModule(moduleId) {
+            const module = gameConfig.modules[moduleId];
+            module.isCompleted = true;
+            
+            // Desbloqueia módulos dependentes
+            Object.entries(gameConfig.modules).forEach(([id, mod]) => {
+                if (mod.dependencies && mod.dependencies.includes(moduleId)) {
+                    const allDependenciesMet = mod.dependencies.every(depId => 
+                        gameConfig.modules[depId].isCompleted || gameConfig.modules[depId].type === 'checkpoint'
+                    );
+                    if (allDependenciesMet) {
+                        mod.isAvailable = true;
+                    }
+                }
+            });
+            
+            // Atualiza interface
+            generateProgressMap();
+            updateStatusBar();
+            closeContentPanel();
+            
+            // Salva progresso
+            saveProgress();
+            
+            // Notificação
+            showNotification(`🎉 ${module.title} concluído!`);
+        }
+
+        function closeContentPanel() {
+            document.getElementById('contentPanel').classList.remove('active');
+            document.querySelectorAll('.module').forEach(el => el.classList.remove('current'));
+            currentModule = null;
+        }
+
+        function showTooltip(event, module) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.textContent = `${module.title} - ${module.description}`;
+            tooltip.style.left = event.pageX + 10 + 'px';
+            tooltip.style.top = event.pageY - 30 + 'px';
+            tooltip.classList.add('show');
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('show');
+        }
+
+        function updateStatusBar() {
+            if (!gameConfig) return;
+            
+            const modules = Object.values(gameConfig.modules);
+            const contentModules = modules.filter(m => m.type !== 'checkpoint');
+            const completed = contentModules.filter(m => m.isCompleted).length;
+            const available = contentModules.filter(m => m.isAvailable && !m.isCompleted).length;
+            
+            const statusText = `📊 Progresso: ${completed}/${contentModules.length} concluídos • ${available} disponíveis`;
+            document.getElementById('statusBar').textContent = statusText;
+        }
+
+        function saveProgress() {
+            if (gameConfig) {
+                localStorage.setItem('gamification_progress', JSON.stringify(gameConfig));
+            }
+        }
+
+        function showNotification(message) {
+            // Cria notificação temporária
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(45deg, #28a745, #20c997);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function showError(message) {
+            const mapContainer = document.getElementById('progressMap');
+            mapContainer.innerHTML = `
+                <div class="error">
+                    <h3>❌ Erro ao Carregar</h3>
+                    <p>${message}</p>
+                    <p>Verifique se a configuração foi passada corretamente na URL.</p>
+                </div>
+            `;
+            
+            document.getElementById('statusBar').textContent = '❌ Erro na configuração';
+        }
+
+        // Inicialização
+        window.addEventListener('load', loadConfigurationFromURL);
+
+        // Atalhos de teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeContentPanel();
+            }
+        });
+
+        // Adiciona estilos de animação
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
