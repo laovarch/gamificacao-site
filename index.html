@@ -558,6 +558,7 @@ function toggleCustomConfigSection() {
         // Remove a classe 'active' de todos os módulos e painéis para garantir interatividade no exportado
         const modules = gameContainerEl.querySelectorAll('.module');
         modules.forEach(m => m.classList.remove('active'));
+        // Mantém a classe 'active' apenas no painel que está visível no momento da exportação
         const panels = gameContainerEl.querySelectorAll('.content-panel');
         panels.forEach(p => p.classList.remove('active'));
         // Remove o botão de download do HTML baixado
@@ -569,8 +570,8 @@ function toggleCustomConfigSection() {
         try {
             const resp = await fetch('public/gamificacao-core.js');
             scriptCode = await resp.text();
-            // Garante que loadConfiguration fique global
-            scriptCode += '\nwindow.loadConfiguration = loadConfiguration;\n';
+            // Garante que loadConfiguration e selectModule fiquem globais
+            scriptCode += '\nwindow.loadConfiguration = loadConfiguration;\nwindow.selectModule = selectModule;\n';
             // Adiciona o tooltip div no HTML exportado se não existir
             scriptCode += '\n// Garante que o tooltip existe\nif (!document.getElementById("tooltip")) { const tooltip = document.createElement("div"); tooltip.id = "tooltip"; tooltip.className = "module-tooltip"; document.body.appendChild(tooltip); }\n';
             // Força a chamada de loadConfiguration ao abrir o HTML
