@@ -569,12 +569,10 @@ function toggleCustomConfigSection() {
         try {
             const resp = await fetch('public/gamificacao-core.js');
             scriptCode = await resp.text();
-            
             // Adiciona o tooltip div no HTML exportado se não existir
             scriptCode += '\n// Garante que o tooltip existe\nif (!document.getElementById("tooltip")) { const tooltip = document.createElement("div"); tooltip.id = "tooltip"; tooltip.className = "module-tooltip"; document.body.appendChild(tooltip); }\n';
-            
-            // Força a chamada de loadConfiguration ao abrir o HTML
-            scriptCode += '\nwindow.addEventListener("DOMContentLoaded", function() { if (window.currentConfig) { loadConfiguration(window.currentConfig, "personalizada"); } });\n';
+            // Força a chamada de loadConfiguration ao abrir o HTML e reativa eventos dos módulos
+            scriptCode += '\nwindow.addEventListener("DOMContentLoaded", function() {\n  if (window.currentConfig) {\n    loadConfiguration(window.currentConfig, "personalizada");\n    if (typeof bindModuleEvents === "function") {\n      bindModuleEvents();\n    }\n  }\n});\n';
         } catch (e) {
             alert('Erro ao copiar o JS para o HTML exportado: ' + e.message);
             return;
